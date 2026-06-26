@@ -1,0 +1,28 @@
+# PlainRights Court — Netlify configuration
+# Frontend (Vite/React) + serverless functions. No standalone server.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# SPA fallback: let React Router handle client-side routes.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Scheduled functions (cron) are declared in-code via the `schedule` export
+# or here. Example (uncomment when the function exists):
+# [functions."notice-reminders"]
+#   schedule = "0 13 * * *"   # daily 13:00 UTC — send due notice-expiration reminders
+# [functions."admin-annual-review"]
+#   schedule = "0 13 1 1 *"   # Jan 1, 13:00 UTC — annual law-review reminder to admin
+
+[functions]
+  node_bundler = "esbuild"
