@@ -5,8 +5,10 @@ import { useAuth } from '../lib/AuthContext.jsx';
 import { getProfile } from '../lib/profile.js';
 import { getDocConfig, addDays } from './registry.jsx';
 import { getLawReviewDate, saveDocument, upsertWorkflow } from '../lib/documents.js';
-import { createCheckoutSession } from '../lib/api.js';
-import { priceForDoc, formatPrice, hasActiveSubscription } from '../lib/pricing.js';
+import { createCheckoutSession, createSubscriptionSession } from '../lib/api.js';
+import {
+  priceForDoc, formatPrice, hasActiveSubscription, SUBSCRIPTION_PLANS, ANCHOR,
+} from '../lib/pricing.js';
 import { fmtDate } from '../pdf/pdfTheme.js';
 import Disclaimer from '../components/Disclaimer.jsx';
 
@@ -27,15 +29,19 @@ export default function DocumentGenerator() {
   const [subscribed, setSubscribed] = useState(false);
 
   // Load profile -> seed default field values; fetch law review date.
+  // NOTE: depend on the stable user.id string, NOT the user object. A Supabase
+  // token refresh emits onAuthStateChange with a NEW session/user object; keying
+  // on the object would re-run this effect and wipe a just-saved document's UI.
+  const userId = user?.id;
   useEffect(() => {
-    if (!config) return;
+    if (!config || !userId) return;
     let alive = true;
     // Reset transient state when switching between documents.
     setSaved(null);
     setError('');
     (async () => {
       const [p, lrd] = await Promise.all([
-        getProfile(user.id).catch(() => ({})),
+        getProfile(userId).catch(() => ({})),
         getLawReviewDate().catch(() => null),
       ]);
       if (!alive) return;
@@ -46,7 +52,8 @@ export default function DocumentGenerator() {
       setSubscribed(hasActiveSubscription(p));
     })();
     return () => { alive = false; };
-  }, [docType, user, config]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [docType, userId]);
 
   // Debounce preview updates so typing doesn't re-render the PDF every keystroke.
   useEffect(() => {
@@ -139,6 +146,18 @@ export default function DocumentGenerator() {
         return;
       }
       window.location.href = url; // hand off to Stripe Checkout
+    } catch (err) {
+      setError(err.message || 'Could not start checkout.');
+      setUnlocking(false);
+    }
+  }
+
+  async function handleUpsell() {
+    setUnlocking(true);
+    setError('');
+    try {
+      const { url } = await createSubscriptionSession('monthly');
+      window.location.href = url;
     } catch (err) {
       setError(err.message || 'Could not start checkout.');
       setUnlocking(false);
@@ -241,16 +260,40 @@ export default function DocumentGenerator() {
               ) : (
                 <>
                   <p className="mt-1 text-gray-700">
-                    A watermarked preview was generated and stored. Unlock the clean,
-                    filing-ready PDF (no watermark) for {formatPrice(price)}.
+                    Your preview is ready. Unlock the clean, filing-ready PDF (no watermark)
+                    for {formatPrice(price)}.
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    An attorney charges ${ANCHOR.attorneyMin}+ and document services up to
+                    ${ANCHOR.serviceMax} for this.
                   </p>
                   <button
                     onClick={handleUnlock}
                     disabled={unlocking}
                     className="mt-3 w-full rounded-md bg-accent px-5 py-2.5 font-medium text-white hover:bg-blue-700 disabled:opacity-60"
                   >
-                    {unlocking ? 'Starting checkout…' : `Unlock filing-ready copy — ${formatPrice(price)}`}
+                    {unlocking ? 'Starting…' : `Unlock this document — ${formatPrice(price)}`}
                   </button>
+
+                  {/* Subscription upsell at the moment of payment */}
+                  <div className="mt-3 rounded-md border border-accent bg-blue-50 p-3">
+                    <p className="text-sm font-medium text-navy">
+                      Filing more than one paper?
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-600">
+                      Unlock <strong>this and every document</strong> for{' '}
+                      {formatPrice(SUBSCRIPTION_PLANS.monthly.amountCents)}/month — most
+                      evictions and defenses need 2–3 forms. Cancel anytime.
+                    </p>
+                    <button
+                      onClick={handleUpsell}
+                      disabled={unlocking}
+                      className="mt-2 w-full rounded-md bg-navy px-4 py-2 text-sm font-medium text-white hover:bg-blue-900 disabled:opacity-60"
+                    >
+                      Go unlimited — {formatPrice(SUBSCRIPTION_PLANS.monthly.amountCents)}/mo
+                    </button>
+                  </div>
+
                   <div className="mt-3 flex gap-4">
                     {saved.download_url && (
                       <a href={saved.download_url} target="_blank" rel="noreferrer"

@@ -2,15 +2,33 @@
 // (to show prices) and the Netlify Functions (to charge the correct amount).
 // The operator can later override these from the admin panel.
 
+// Value-based, segmented pricing. Landlord documents are priced against the
+// $500+ attorney / up to $799 document-service alternative; tenant documents are
+// kept affordable on purpose (tenants are often low-income — and a strong tenant
+// funnel feeds word-of-mouth and subscriptions). Operator-adjustable.
 export const DOC_PRICES_CENTS = {
-  rent_demand_14day: 1999,
-  nonpayment_petition: 2499,
-  affidavit_of_service: 999,
-  answer_nonpayment: 1999,
-  osc_vacate_default: 2499,
+  // Landlord — notices
+  rent_demand_14day: 3900,
+  notice_cure_10day: 3900,
+  notice_termination: 3900,
+  // Landlord — court petitions (highest value)
+  nonpayment_petition: 7900,
+  holdover_petition: 7900,
+  // Landlord — service proof
+  affidavit_of_service: 2900,
+  // Tenant — kept affordable
+  answer_nonpayment: 2500,
+  answer_holdover: 2500,
+  osc_vacate_default: 2500,
 };
 
-export const DEFAULT_PRICE_CENTS = 1999;
+export const DEFAULT_PRICE_CENTS = 3900;
+
+// What the alternatives cost — used for price anchoring in the UI.
+export const ANCHOR = {
+  attorneyMin: 500,
+  serviceMax: 799,
+};
 
 export function priceForDoc(docType) {
   return DOC_PRICES_CENTS[docType] ?? DEFAULT_PRICE_CENTS;
@@ -40,6 +58,11 @@ export const SUBSCRIPTION_PLANS = {
 
 export function planByKey(key) {
   return SUBSCRIPTION_PLANS[key] || null;
+}
+
+// How much the annual plan saves vs. paying monthly for a year.
+export function annualSavingsCents() {
+  return SUBSCRIPTION_PLANS.monthly.amountCents * 12 - SUBSCRIPTION_PLANS.annual.amountCents;
 }
 
 // True if the profile has a currently-active subscription.

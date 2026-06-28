@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
 import { LEGAL_DISCLAIMER } from '../lib/constants.js';
+import { ANCHOR } from '../lib/pricing.js';
 
 // Professional, confidence-building landing page. Authoritative tone WITHOUT
 // implying any government/court affiliation (we are an independent self-help service).
@@ -32,6 +33,11 @@ export default function Landing() {
             PlainRights Court guides you question-by-question, fills the forms from your
             answers, calculates your deadlines, and produces court-ready PDFs with filing
             instructions.
+          </p>
+          <p className="mx-auto mt-3 max-w-2xl text-base text-gray-700">
+            Attorneys charge <strong>${ANCHOR.attorneyMin}+</strong> and prep services up to{' '}
+            <strong>${ANCHOR.serviceMax}</strong>. Prepare yours <strong>from $25</strong> —
+            and it's <strong>free to build and preview</strong> before you pay.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-6">
