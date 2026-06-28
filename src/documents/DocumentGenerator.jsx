@@ -153,15 +153,21 @@ export default function DocumentGenerator() {
       <Link to="/start" className="text-sm text-gray-500 hover:text-accent">← Back to the wizard</Link>
       <h1 className="mt-2 text-2xl font-bold text-navy">{config.title}</h1>
       <p className="mt-1 text-sm text-gray-500">New York State landlord–tenant form</p>
+      <p className="mt-3 rounded-md bg-panel px-4 py-2 text-sm text-gray-700">
+        <strong>How this works:</strong> Answer the questions below. Your form fills in
+        and updates on the right as you type. When it looks right, download it — we'll
+        include a page telling you exactly where and how to file.
+      </p>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
         {/* LEFT: questions */}
         <section>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-            Fill in the details
+            Step 1 · Answer these questions
           </h2>
           <p className="mt-1 text-xs text-gray-500">
-            Pre-filled from your profile where possible — edit anything before generating.
+            We've filled in what we can from your profile — change anything you need to.
+            Not sure what to write? Read the 💡 example under each box.
           </p>
           <div className="mt-4 space-y-4">
             {config.fields.map((f) => (
@@ -199,7 +205,7 @@ export default function DocumentGenerator() {
         <section>
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-              Live preview (watermarked)
+              Step 2 · Preview, then download
             </h2>
             <span className="text-xs text-gray-400">Updates as you type</span>
           </div>

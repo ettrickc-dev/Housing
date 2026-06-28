@@ -42,48 +42,70 @@ export const HOUSING_TYPES = [
       'you can change it later in your profile.' },
 ];
 
-// Role-specific "what do you need to do?" menus. Only the MVP docs are ready.
+// Role-specific menus. Each category has a plain-English `plainTitle` (what the
+// user sees) plus the formal `group` name (small, for reference) and `help`.
 export const NEEDS = {
   landlord: [
-    { group: 'Pre-court notices (predicate notices)', items: [
-      { key: 'rent_demand_14day', label: '14-Day Rent Demand (nonpayment)', ready: true,
-        statute: 'RPAPL § 711(2)' },
-      { key: 'notice_cure_10day', label: '10-Day Notice to Cure (lease violation)', ready: true,
-        statute: 'RPAPL § 753' },
-      { key: 'notice_termination', label: 'Notice of Termination (30/60/90-day)', ready: true,
-        statute: 'RPL § 226-c' },
-      { key: 'notice_nonrenewal_rs', label: 'Notice of Non-Renewal (rent stabilized)' },
-    ]},
-    { group: 'Court petitions', items: [
-      { key: 'nonpayment_petition', label: 'Nonpayment Petition + Notice of Petition', ready: true,
-        statute: 'RPAPL § 711' },
-      { key: 'holdover_petition', label: 'Holdover Petition + Notice of Petition', ready: true,
-        statute: 'RPAPL § 711' },
-    ]},
-    { group: 'Affidavits & service', items: [
-      { key: 'affidavit_of_service', label: 'Affidavit of Service', ready: true,
-        statute: 'RPAPL § 735' },
-      { key: 'affidavit_due_diligence', label: 'Affidavit of Due Diligence' },
-      { key: 'military_affidavit', label: 'Military Service Affidavit (SCRA)' },
-    ]},
+    {
+      plainTitle: 'Send a required notice before court',
+      group: 'Pre-court notices (predicate notices)',
+      help: 'Before you can start an eviction case, the law usually requires you to give the tenant a written notice first.',
+      items: [
+        { key: 'rent_demand_14day', label: 'Demand unpaid rent (14-day notice)', ready: true },
+        { key: 'notice_cure_10day', label: 'Tell a tenant to fix a lease problem (10-day notice)', ready: true },
+        { key: 'notice_termination', label: 'Tell a tenant to move out (30/60/90-day notice)', ready: true },
+        { key: 'notice_nonrenewal_rs', label: "Don't renew a rent-stabilized lease" },
+      ],
+    },
+    {
+      plainTitle: 'Start a case in housing court',
+      group: 'Court petitions',
+      help: 'The papers that open your eviction case and ask the court for possession (and any money owed).',
+      items: [
+        { key: 'nonpayment_petition', label: 'Take a tenant to court for unpaid rent (nonpayment case)', ready: true },
+        { key: 'holdover_petition', label: 'Take a tenant to court to remove them (holdover case)', ready: true },
+      ],
+    },
+    {
+      plainTitle: 'Prove you delivered the papers',
+      group: 'Affidavits & service',
+      help: 'After you give a notice or court papers, the court needs proof of how and when they were delivered.',
+      items: [
+        { key: 'affidavit_of_service', label: 'Prove I delivered the papers (affidavit of service)', ready: true },
+        { key: 'affidavit_due_diligence', label: 'Show I tried hard to find the tenant (due diligence)' },
+        { key: 'military_affidavit', label: 'State whether the tenant is in the military (required affidavit)' },
+      ],
+    },
   ],
   tenant: [
-    { group: 'Responding to a case', items: [
-      { key: 'answer_nonpayment', label: 'Written Answer — Nonpayment (with defenses)', ready: true,
-        statute: 'RPL § 235-b' },
-      { key: 'answer_holdover', label: 'Written Answer — Holdover (with defenses)', ready: true,
-        statute: 'RPAPL § 711' },
-      { key: 'jury_demand', label: 'Jury Demand' },
-    ]},
-    { group: 'Emergency relief', items: [
-      { key: 'osc_vacate_default', label: 'OSC to Vacate Default Judgment', ready: true,
-        statute: 'CPLR § 5015' },
-      { key: 'osc_stay_warrant', label: 'OSC to Stay Execution of Warrant' },
-    ]},
-    { group: 'Starting a case', items: [
-      { key: 'hp_action_repairs', label: 'HP Action — Petition for Repairs' },
-      { key: 'illegal_lockout', label: 'Illegal Lockout Petition + OSC (emergency)' },
-    ]},
+    {
+      plainTitle: 'Respond to a case against me',
+      group: 'Responding to a case',
+      help: 'Your landlord started a case. File your answer and raise any defenses you have.',
+      items: [
+        { key: 'answer_nonpayment', label: 'Answer a case about unpaid rent (with my defenses)', ready: true },
+        { key: 'answer_holdover', label: 'Answer a case to remove me (with my defenses)', ready: true },
+        { key: 'jury_demand', label: 'Ask for a jury trial' },
+      ],
+    },
+    {
+      plainTitle: 'Get urgent help to stop or undo an eviction',
+      group: 'Emergency relief',
+      help: "For example, to undo a decision the court made when you weren't there, or to pause an eviction.",
+      items: [
+        { key: 'osc_vacate_default', label: 'Undo a decision the court made without me', ready: true },
+        { key: 'osc_stay_warrant', label: 'Ask the court to pause my eviction' },
+      ],
+    },
+    {
+      plainTitle: 'Start my own case against my landlord',
+      group: 'Starting a case',
+      help: 'Bring your landlord to court — for repairs, or to get back in after an illegal lockout.',
+      items: [
+        { key: 'hp_action_repairs', label: 'Make my landlord do repairs (HP case)' },
+        { key: 'illegal_lockout', label: 'Get back in after an illegal lockout' },
+      ],
+    },
   ],
 };
 

@@ -179,25 +179,20 @@ function NeedMenu({ role, onPick }) {
   if (openGroup === null) {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-gray-600">First, what do you want to do?</p>
-        {groups.map((g, i) => {
-          const readyCount = g.items.filter((it) => it.ready).length;
-          return (
-            <button
-              key={g.group}
-              onClick={() => setOpenGroup(i)}
-              className="flex w-full items-center justify-between rounded-lg border border-gray-200 p-4 text-left hover:border-accent"
-            >
-              <span>
-                <span className="block font-semibold text-navy">{g.group}</span>
-                <span className="mt-0.5 block text-xs text-gray-500">
-                  {readyCount} {readyCount === 1 ? 'form' : 'forms'} available
-                </span>
-              </span>
-              <span className="text-gray-400">→</span>
-            </button>
-          );
-        })}
+        <p className="text-sm text-gray-600">Pick the one that sounds like your situation:</p>
+        {groups.map((g, i) => (
+          <button
+            key={g.group}
+            onClick={() => setOpenGroup(i)}
+            className="flex w-full items-center justify-between gap-3 rounded-lg border border-gray-200 p-4 text-left hover:border-accent"
+          >
+            <span>
+              <span className="block font-semibold text-navy">{g.plainTitle || g.group}</span>
+              <span className="mt-0.5 block text-sm text-gray-500">{g.help}</span>
+            </span>
+            <span className="shrink-0 text-gray-400">→</span>
+          </button>
+        ))}
       </div>
     );
   }
@@ -207,9 +202,10 @@ function NeedMenu({ role, onPick }) {
   return (
     <div>
       <button onClick={() => setOpenGroup(null)} className="mb-3 text-sm text-gray-500 hover:text-accent">
-        ← All categories
+        ← Back to all options
       </button>
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{g.group}</h2>
+      <h2 className="font-semibold text-navy">{g.plainTitle || g.group}</h2>
+      <p className="mt-1 text-sm text-gray-500">{g.help}</p>
       <ul className="mt-3 space-y-2">
         {g.items.map((item) => (
           <li key={item.key}>
