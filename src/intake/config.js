@@ -19,16 +19,27 @@ export const LOCATIONS = [
 ];
 
 export const HOUSING_TYPES = [
-  { value: 'rent_stabilized', label: 'Rent Stabilized' },
-  { value: 'rent_controlled', label: 'Rent Controlled' },
-  { value: 'market_rate', label: 'Market Rate / Unregulated' },
-  { value: 'nycha', label: 'NYCHA / Public Housing' },
+  { value: 'rent_stabilized', label: 'Rent Stabilized',
+    blurb: 'Rent is regulated by the government. Increases are capped each year and the ' +
+      'tenant usually has the right to renew the lease. Common in many NYC apartments.' },
+  { value: 'rent_controlled', label: 'Rent Controlled',
+    blurb: 'An older, stricter form of rent regulation for tenants (or their family) who ' +
+      'have lived there continuously since around 1971. Fairly rare today.' },
+  { value: 'market_rate', label: 'Market Rate / Unregulated',
+    blurb: 'A regular private rental with no rent regulation — the rent is whatever the ' +
+      'lease says. Most apartments outside NYC, and many newer NYC buildings, are like this. ' +
+      'If your rent is not government-controlled and there are no special rules, pick this.' },
+  { value: 'nycha', label: 'NYCHA / Public Housing',
+    blurb: 'Government-owned or subsidized public housing (e.g., NYCHA). Special rules and ' +
+      'procedures apply.' },
   { value: 'good_cause', label: 'Good Cause Eviction coverage',
     explainer: true,
-    blurb: 'A 2024 law that limits evictions and rent increases for many ' +
-      'unregulated tenants — but with local opt-outs. Coverage is fact-specific.' },
-  { value: 'not_sure', label: 'Not sure',
-    blurb: "We'll help you figure it out — your housing type changes which forms apply." },
+    blurb: 'A 2024 law that limits evictions and big rent increases for many ' +
+      'unregulated tenants — but only where it is in effect, with exceptions. ' +
+      'Not sure if it applies? Use the coverage checker.' },
+  { value: 'not_sure', label: "Not sure / I don't know",
+    blurb: "That's okay — most people aren't sure. Pick this and we'll keep things general; " +
+      'you can change it later in your profile.' },
 ];
 
 // Role-specific "what do you need to do?" menus. Only the MVP docs are ready.

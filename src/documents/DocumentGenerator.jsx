@@ -5,11 +5,12 @@ import { useAuth } from '../lib/AuthContext.jsx';
 import { getProfile } from '../lib/profile.js';
 import { getDocConfig, addDays } from './registry.jsx';
 import { getLawReviewDate, saveDocument, upsertWorkflow } from '../lib/documents.js';
-import { getFlaggedCitations } from '../lib/admin.js';
 import { createCheckoutSession } from '../lib/api.js';
 import { priceForDoc, formatPrice, hasActiveSubscription } from '../lib/pricing.js';
 import { fmtDate } from '../pdf/pdfTheme.js';
 import Disclaimer from '../components/Disclaimer.jsx';
+
+const TONE_ICON = { must: '⏳', cannot: '🚫', info: '✅', warn: '⚠️' };
 
 export default function DocumentGenerator() {
   const { docType } = useParams();
@@ -23,7 +24,6 @@ export default function DocumentGenerator() {
   const [saved, setSaved] = useState(null);
   const [error, setError] = useState('');
   const [unlocking, setUnlocking] = useState(false);
-  const [flagged, setFlagged] = useState([]);
   const [subscribed, setSubscribed] = useState(false);
 
   // Load profile -> seed default field values; fetch law review date.
@@ -44,7 +44,6 @@ export default function DocumentGenerator() {
       setPreviewData(config.derive(defaults));
       setLawReviewDate(lrd);
       setSubscribed(hasActiveSubscription(p));
-      getFlaggedCitations(config.statutes).then((f) => { if (alive) setFlagged(f); });
     })();
     return () => { alive = false; };
   }, [docType, user, config]);
@@ -153,23 +152,7 @@ export default function DocumentGenerator() {
     <main className="mx-auto max-w-6xl px-4 py-8">
       <Link to="/start" className="text-sm text-gray-500 hover:text-accent">← Back to the wizard</Link>
       <h1 className="mt-2 text-2xl font-bold text-navy">{config.title}</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        Cites: {config.statutes.join(', ')}
-        {!lawReviewDate && (
-          <span className="ml-2 rounded bg-warnbanner px-2 py-0.5 text-xs text-navy">
-            Statutes not yet admin-verified
-          </span>
-        )}
-      </p>
-
-      {flagged.length > 0 && (
-        <div className="mt-4 rounded-md border border-deadline bg-warnbanner px-4 py-3 text-sm text-navy">
-          <strong>Law update notice:</strong> {flagged.join(', ')} {flagged.length === 1 ? 'has' : 'have'} been
-          flagged for review — the law may have changed since this template was written.
-          Confirm current law before filing. See the{' '}
-          <Link to="/law-updates" className="underline">law update log</Link>.
-        </div>
-      )}
+      <p className="mt-1 text-sm text-gray-500">New York State landlord–tenant form</p>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
         {/* LEFT: questions */}
@@ -186,13 +169,19 @@ export default function DocumentGenerator() {
             ))}
           </div>
 
-          {dateInfo && (
+          {dateInfo && dateInfo.items && (
             <div className="mt-6 rounded-md border border-deadline bg-amber-50 p-4 text-sm">
-              <p className="font-semibold text-navy">Deadline calculator</p>
-              <p className="mt-1">
-                Estimated expiration: <strong>{fmtDate(dateInfo.expires)}</strong>
-              </p>
-              <p className="mt-1 text-xs text-gray-600">{dateInfo.note}</p>
+              <p className="font-semibold text-navy">📅 Your dates &amp; deadlines</p>
+              <ul className="mt-2 space-y-2">
+                {dateInfo.items.map((it, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span>{TONE_ICON[it.tone] || 'ℹ️'}</span>
+                    <span className={it.tone === 'cannot' ? 'font-medium text-navy' : 'text-gray-700'}>
+                      {it.text}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -351,9 +340,11 @@ function Field({ field, value, onChange }) {
         <textarea
           rows={3}
           className="input"
+          placeholder={field.placeholder || ''}
           value={value ?? ''}
           onChange={(e) => onChange(key, e.target.value)}
         />
+        <Example text={field.example} />
       </label>
     );
   }
@@ -376,10 +367,18 @@ function Field({ field, value, onChange }) {
         <input
           type={type}
           className="input"
+          placeholder={field.placeholder || ''}
           value={value ?? ''}
           onChange={(e) => onChange(key, e.target.value)}
         />
       )}
+      <Example text={field.example} />
     </label>
   );
+}
+
+// Small plain-language helper shown under a field so users know what to write.
+function Example({ text }) {
+  if (!text) return null;
+  return <span className="mt-1 block text-xs text-gray-500">💡 {text}</span>;
 }

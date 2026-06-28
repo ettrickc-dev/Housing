@@ -7,7 +7,12 @@ import TerminationNotice from '../pdf/TerminationNotice.jsx';
 import NoticeToCure10 from '../pdf/NoticeToCure10.jsx';
 import HoldoverPetition from '../pdf/HoldoverPetition.jsx';
 import AnswerHoldover from '../pdf/AnswerHoldover.jsx';
-import { joinAddress } from '../pdf/pdfTheme.js';
+import { joinAddress, fmtDate } from '../pdf/pdfTheme.js';
+
+// Reusable example/help snippets.
+export const DOE_HELP =
+  "Don't know a name? You can write \"John Doe\" (man), \"Jane Doe\" (woman), or " +
+  '"John Doe and Jane Doe" to cover any unknown adult occupants.';
 
 export const HOLDOVER_DEFENSES = [
   { value: 'improper_service', title: 'Improper service',
@@ -69,10 +74,26 @@ export function deriveCourt(profile = {}) {
     };
   }
   return {
-    courtName: '____ DISTRICT / CITY / TOWN / VILLAGE COURT',
-    county: (profile.county || '____________________').toUpperCase(),
+    // Outside NYC the right court depends on the municipality, so we leave it
+    // blank for the user to enter (the field example guides them).
+    courtName: '',
+    county: (profile.county || '').toUpperCase(),
   };
 }
+
+// Editable caption fields shared by every court-filed document (fixes wrong
+// captions, especially outside NYC). Prepended to those documents' field lists.
+const COURT_FIELDS = [
+  { key: 'courtName', label: 'Court name',
+    placeholder: 'e.g., Civil Court of the City of New York — Housing Part',
+    example:
+      'In NYC this is the Civil Court (Housing Part). Outside NYC, enter your local ' +
+      'court, e.g., "Yonkers City Court", "Nassau County District Court", or ' +
+      '"Town of Greenburgh Justice Court".' },
+  { key: 'county', label: 'County',
+    placeholder: 'e.g., Kings, Queens, Westchester, Erie',
+    example: 'The county where the property is located.' },
+];
 
 function fullAddress(p = {}) {
   return joinAddress([
@@ -103,15 +124,26 @@ export const DOCUMENTS = {
     statutes: ['RPAPL § 711', 'RPAPL § 735'],
     Pdf: RentDemand14,
     fields: [
-      { key: 'tenantNames', label: 'Tenant name(s)', tip: 'Everyone named on the lease / in possession.' },
-      { key: 'premisesAddress', label: 'Premises address', tip: 'The full address of the rented unit.' },
-      { key: 'landlordName', label: 'Landlord / owner name' },
-      { key: 'landlordAddress', label: 'Landlord / owner address' },
+      { key: 'tenantNames', label: 'Tenant name(s)',
+        placeholder: 'e.g., John Tenant and Jane Tenant',
+        example: `List everyone on the lease, separated by "and". ${DOE_HELP}` },
+      { key: 'premisesAddress', label: 'Premises address (the rented home)',
+        placeholder: 'e.g., 123 Main Street, Apt 4B, Brooklyn, NY 11201',
+        example: 'Include unit/apartment number, city, state, and ZIP.' },
+      { key: 'landlordName', label: 'Landlord / owner name',
+        placeholder: 'e.g., Acme Property LLC, or your name' },
+      { key: 'landlordAddress', label: 'Landlord / owner address',
+        placeholder: 'e.g., 500 Owner Ave, Brooklyn, NY 11215',
+        example: 'Where the tenant can reach you or pay rent.' },
       { key: 'servedByAgent', label: 'I am signing as an agent (not the owner)', type: 'checkbox' },
-      { key: 'rentPeriods', label: 'Rental period(s) owed', tip: 'e.g. "March 2026 through June 2026".' },
-      { key: 'monthlyRent', label: 'Monthly rent ($)', type: 'number' },
-      { key: 'arrearsTotal', label: 'Total amount owed ($)', type: 'number' },
-      { key: 'demandDate', label: 'Date of this demand', type: 'date' },
+      { key: 'rentPeriods', label: 'Which months/rent are owed?',
+        placeholder: 'e.g., March 2026 through June 2026',
+        example: 'Describe the months and the rent that went unpaid.' },
+      { key: 'monthlyRent', label: 'Monthly rent ($)', type: 'number', placeholder: '2000' },
+      { key: 'arrearsTotal', label: 'Total amount owed ($)', type: 'number', placeholder: '8000',
+        example: 'Add up everything currently unpaid.' },
+      { key: 'demandDate', label: 'Date you will give this notice', type: 'date',
+        example: 'Usually today or the day you plan to serve it.' },
     ],
     defaults: (p) => ({
       tenantNames: p.landlord_name || '',
@@ -127,13 +159,14 @@ export const DOCUMENTS = {
     derive: (v) => ({ ...v, expiresDate: addDays(v.demandDate, 14) }),
     dateInfo: (v) => {
       if (!v.demandDate) return null;
+      const expires = addDays(v.demandDate, 14);
       return {
-        expires: addDays(v.demandDate, 14),
-        note:
-          'The 14-day period runs from the date the notice is SERVED (not signed). ' +
-          'If served by mail, additional days are generally added before you may file. ' +
-          'This estimate assumes service on the demand date — confirm the exact filing ' +
-          'date against current RPAPL service rules.',
+        items: [
+          { tone: 'info', text: `Give this notice to your tenant on or about ${fmtDate(v.demandDate)}.` },
+          { tone: 'must', text: `Your tenant has until ${fmtDate(expires)} to pay everything owed or move out.` },
+          { tone: 'cannot', text: `You cannot file a nonpayment case in court until after ${fmtDate(expires)} — the full 14 days must pass first.` },
+          { tone: 'warn', text: 'If you mail the notice, add a few extra days before filing. When in doubt, ask the court clerk.' },
+        ],
       };
     },
     serviceInstructions: [
@@ -155,16 +188,22 @@ export const DOCUMENTS = {
     statutes: ['RPAPL § 711', 'RPAPL § 735'],
     Pdf: NonpaymentPetition,
     fields: [
-      { key: 'indexNumber', label: 'Index / L&T number (if assigned)', tip: 'Leave blank if the clerk has not assigned one yet.' },
-      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
-      { key: 'petitionerAddress', label: 'Petitioner address' },
-      { key: 'respondentNames', label: 'Respondent (tenant) name(s)' },
-      { key: 'premisesAddress', label: 'Premises address' },
-      { key: 'rentPeriods', label: 'Rental period(s) owed' },
-      { key: 'monthlyRent', label: 'Monthly rent ($)', type: 'number' },
-      { key: 'arrearsTotal', label: 'Total amount owed ($)', type: 'number' },
-      { key: 'demandServedDate', label: 'Date the 14-day demand was served', type: 'date' },
-      { key: 'demandMethod', label: 'How the demand was served', type: 'select',
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number (if you have one yet)',
+        placeholder: 'Leave blank if none yet',
+        example: 'The clerk assigns this when you file. Leave blank if you have not filed yet.' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name', placeholder: 'e.g., Acme Property LLC' },
+      { key: 'petitionerAddress', label: 'Petitioner address', placeholder: 'e.g., 500 Owner Ave, Brooklyn, NY 11215' },
+      { key: 'respondentNames', label: 'Respondent (tenant) name(s)',
+        placeholder: 'e.g., John Tenant and Jane Tenant', example: DOE_HELP },
+      { key: 'premisesAddress', label: 'Premises address (the rented home)',
+        placeholder: 'e.g., 123 Main Street, Apt 4B, Brooklyn, NY 11201' },
+      { key: 'rentPeriods', label: 'Which months/rent are owed?', placeholder: 'e.g., March 2026 through June 2026' },
+      { key: 'monthlyRent', label: 'Monthly rent ($)', type: 'number', placeholder: '2000' },
+      { key: 'arrearsTotal', label: 'Total amount owed ($)', type: 'number', placeholder: '8000' },
+      { key: 'demandServedDate', label: 'Date the 14-day demand was served', type: 'date',
+        example: 'The day your rent demand was actually given to the tenant.' },
+      { key: 'demandMethod', label: 'How was the demand delivered?', type: 'select',
         options: ['Personal delivery', 'Substituted service + mailing', 'Conspicuous (nail and mail) + mailing'] },
       { key: 'petitionDate', label: 'Date of this petition', type: 'date' },
     ],
@@ -207,10 +246,14 @@ export const DOCUMENTS = {
     statutes: ['RPAPL § 735'],
     Pdf: AffidavitOfService,
     fields: [
-      { key: 'indexNumber', label: 'Index / L&T number' },
-      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
-      { key: 'respondentNames', label: 'Respondent (tenant) name(s)' },
-      { key: 'affiantName', label: 'Who served the papers (affiant)', tip: 'The non-party person 18+ who served them.' },
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number', placeholder: 'From your court papers' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name', placeholder: 'e.g., Acme Property LLC' },
+      { key: 'respondentNames', label: 'Respondent (tenant) name(s)',
+        placeholder: 'e.g., John Tenant', example: DOE_HELP },
+      { key: 'affiantName', label: 'Who served the papers?',
+        placeholder: 'Full name of the person who delivered them',
+        example: 'Must be someone 18 or older who is NOT a party to the case (not you).' },
       { key: 'documentServed', label: 'Document(s) served', type: 'select',
         options: ['Notice of Petition and Petition', '14-Day Rent Demand', 'Other'] },
       { key: 'servedOn', label: 'Person served', tip: 'Name/description of who received it.' },
@@ -261,10 +304,14 @@ export const DOCUMENTS = {
     statutes: ['RPL § 235-b', 'CPLR § 1101'],
     Pdf: AnswerNonpayment,
     fields: [
-      { key: 'indexNumber', label: 'Index / L&T number', tip: 'On the papers you were served with.' },
-      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
-      { key: 'respondentNames', label: 'Your name (respondent)' },
-      { key: 'premisesAddress', label: 'Premises address' },
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number',
+        placeholder: 'Look on the papers you were served',
+        example: 'It is printed near the top of the court papers you received.' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name', placeholder: "Your landlord's name, from the papers" },
+      { key: 'respondentNames', label: 'Your name (respondent)', placeholder: 'e.g., Jane Tenant' },
+      { key: 'premisesAddress', label: 'Premises address (your home)',
+        placeholder: 'e.g., 123 Main Street, Apt 4B, Brooklyn, NY 11201' },
       { key: 'defenses', label: 'Which defenses apply to you?', type: 'checklist',
         tip: 'Select all that apply. Each becomes a numbered affirmative defense.',
         options: NONPAYMENT_DEFENSES.map((d) => ({ value: d.value, label: d.title })) },
@@ -310,15 +357,25 @@ export const DOCUMENTS = {
     statutes: ['CPLR § 5015', 'CPLR § 1101'],
     Pdf: OscVacateDefault,
     fields: [
-      { key: 'indexNumber', label: 'Index / L&T number' },
-      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
-      { key: 'respondentNames', label: 'Your name (respondent)' },
-      { key: 'premisesAddress', label: 'Premises address' },
-      { key: 'judgmentDate', label: 'Date the default judgment / warrant was entered', type: 'date' },
-      { key: 'defaultReason', label: 'Why you did not appear', type: 'textarea',
-        tip: 'e.g. "I never received the court papers" or "I went on the wrong date."' },
-      { key: 'meritoriousDefense', label: 'Your defense to the case', type: 'textarea',
-        tip: 'Why you should win or deserve a hearing — e.g. "the rent is paid" or "conditions defense."' },
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number', placeholder: 'From your court papers' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name', placeholder: "Your landlord's name" },
+      { key: 'respondentNames', label: 'Your name (respondent)', placeholder: 'e.g., Jane Tenant' },
+      { key: 'premisesAddress', label: 'Premises address (your home)',
+        placeholder: 'e.g., 123 Main Street, Apt 4B, Brooklyn, NY 11201' },
+      { key: 'judgmentDate', label: 'Date the default judgment / warrant was entered', type: 'date',
+        example: 'Roughly when you learned the court ruled against you without you there.' },
+      { key: 'defaultReason', label: 'Why did you miss your court date?', type: 'textarea',
+        placeholder: 'Explain in 1–2 honest sentences…',
+        example:
+          'Examples: "I never received the court papers." · "I was in the hospital that day." · ' +
+          '"I went to the wrong courtroom." · "I had a work emergency and could not get there."' },
+      { key: 'meritoriousDefense', label: 'Why should you win, or get another chance?', type: 'textarea',
+        placeholder: 'Your side of the story…',
+        example:
+          'Examples: "I already paid the rent — I have receipts." · ' +
+          '"There is no heat or hot water and the apartment is unsafe." · ' +
+          '"The amount the landlord claims is wrong."' },
       { key: 'oscDate', label: 'Date you are signing this', type: 'date' },
     ],
     defaults: (p) => {
@@ -355,21 +412,25 @@ export const DOCUMENTS = {
     statutes: ['RPL § 226-c'],
     Pdf: TerminationNotice,
     fields: [
-      { key: 'tenantNames', label: 'Tenant name(s)' },
-      { key: 'premisesAddress', label: 'Premises address' },
-      { key: 'landlordName', label: 'Landlord / owner name' },
-      { key: 'landlordAddress', label: 'Landlord / owner address' },
+      { key: 'tenantNames', label: 'Tenant name(s)',
+        placeholder: 'e.g., John Tenant', example: DOE_HELP },
+      { key: 'premisesAddress', label: 'Premises address (the rented home)',
+        placeholder: 'e.g., 123 Main Street, Apt 4B, Brooklyn, NY 11201' },
+      { key: 'landlordName', label: 'Landlord / owner name', placeholder: 'e.g., Acme Property LLC' },
+      { key: 'landlordAddress', label: 'Landlord / owner address',
+        placeholder: 'e.g., 500 Owner Ave, Brooklyn, NY 11215' },
       { key: 'servedByAgent', label: 'I am signing as an agent (not the owner)', type: 'checkbox' },
-      { key: 'noticeDays', label: 'Required notice period', type: 'select',
-        tip: 'Based on how long the tenant has lived there: under 1 year = 30 days; 1–2 years = 60 days; over 2 years = 90 days.',
+      { key: 'noticeDays', label: 'How long has the tenant lived there?', type: 'select',
+        example: 'This sets how much notice the law requires.',
         options: [
-          { value: '30', label: '30 days (occupied under 1 year)' },
-          { value: '60', label: '60 days (occupied 1–2 years)' },
-          { value: '90', label: '90 days (occupied over 2 years)' },
+          { value: '30', label: 'Less than 1 year → 30 days notice' },
+          { value: '60', label: '1 to 2 years → 60 days notice' },
+          { value: '90', label: 'More than 2 years → 90 days notice' },
         ] },
-      { key: 'noticeDate', label: 'Date of this notice', type: 'date' },
-      { key: 'terminationDate', label: 'Date tenant must vacate by', type: 'date',
-        tip: 'Must be at least the notice period after service. See the calculator.' },
+      { key: 'noticeDate', label: 'Date you will give this notice', type: 'date',
+        example: 'Usually today or when you plan to serve it.' },
+      { key: 'terminationDate', label: 'Date the tenant must move out by', type: 'date',
+        example: 'Pick a date on or after the earliest date shown in the deadline box.' },
     ],
     defaults: (p) => ({
       tenantNames: p.landlord_name || '',
@@ -384,12 +445,14 @@ export const DOCUMENTS = {
     derive: (v) => v,
     dateInfo: (v) => {
       if (!v.noticeDate) return null;
+      const earliest = addDays(v.noticeDate, Number(v.noticeDays || 30));
       return {
-        expires: addDays(v.noticeDate, Number(v.noticeDays || 30)),
-        note:
-          `The earliest valid termination date is at least ${v.noticeDays} days after ` +
-          'service. This estimate assumes service on the notice date; mailing may add ' +
-          'days. Confirm the required period and counting rules before serving.',
+        items: [
+          { tone: 'info', text: `Give this notice to your tenant on or about ${fmtDate(v.noticeDate)}.` },
+          { tone: 'cannot', text: `The move-out date you set must be ${earliest ? `on or after ${fmtDate(earliest)}` : `at least ${v.noticeDays} days away`} — that's the earliest the law allows.` },
+          { tone: 'must', text: `The tenant must move out by the date you set (the "move-out by" date).` },
+          { tone: 'warn', text: 'If you mail the notice, add a few extra days. You can only start a holdover case after the move-out date passes.' },
+        ],
       };
     },
     serviceInstructions: [
@@ -409,18 +472,28 @@ export const DOCUMENTS = {
     statutes: ['RPAPL § 753'],
     Pdf: NoticeToCure10,
     fields: [
-      { key: 'tenantNames', label: 'Tenant name(s)' },
-      { key: 'premisesAddress', label: 'Premises address' },
-      { key: 'landlordName', label: 'Landlord / owner name' },
-      { key: 'landlordAddress', label: 'Landlord / owner address' },
+      { key: 'tenantNames', label: 'Tenant name(s)',
+        placeholder: 'e.g., John Tenant', example: DOE_HELP },
+      { key: 'premisesAddress', label: 'Premises address (the rented home)',
+        placeholder: 'e.g., 123 Main Street, Apt 4B, Brooklyn, NY 11201' },
+      { key: 'landlordName', label: 'Landlord / owner name', placeholder: 'e.g., Acme Property LLC' },
+      { key: 'landlordAddress', label: 'Landlord / owner address',
+        placeholder: 'e.g., 500 Owner Ave, Brooklyn, NY 11215' },
       { key: 'servedByAgent', label: 'I am signing as an agent (not the owner)', type: 'checkbox' },
-      { key: 'leaseProvision', label: 'Lease provision violated (optional)',
-        tip: 'e.g. "Paragraph 12 — no pets" or "Rider §4 — no subletting".' },
-      { key: 'violationDescription', label: 'Describe the violation', type: 'textarea',
-        tip: 'Plainly state what the tenant is doing that breaks the lease.' },
-      { key: 'noticeDate', label: 'Date of this notice', type: 'date' },
-      { key: 'cureDate', label: 'Cure-by date', type: 'date',
-        tip: 'At least 10 days after service. See the calculator.' },
+      { key: 'leaseProvision', label: 'Which lease rule was broken? (optional)',
+        placeholder: 'e.g., Paragraph 12 — No Pets',
+        example: 'If you know the lease paragraph or rule, name it. You can leave this blank.' },
+      { key: 'violationDescription', label: 'Describe what the tenant is doing wrong', type: 'textarea',
+        placeholder: 'Describe the problem in 1–3 plain sentences…',
+        example:
+          'Be specific. Examples: "Keeping a dog despite the no-pets clause." · ' +
+          '"Subletting the apartment on Airbnb without permission." · ' +
+          '"Repeated loud parties after midnight despite warnings on 3/1 and 3/15." · ' +
+          '"Storing junk in the hallway, blocking the fire exit."' },
+      { key: 'noticeDate', label: 'Date you will give this notice', type: 'date',
+        example: 'Usually today or when you plan to serve it.' },
+      { key: 'cureDate', label: 'Deadline for the tenant to fix it', type: 'date',
+        example: 'Pick a date on or after the earliest date shown in the deadline box.' },
     ],
     defaults: (p) => ({
       tenantNames: p.landlord_name || '',
@@ -436,11 +509,14 @@ export const DOCUMENTS = {
     derive: (v) => v,
     dateInfo: (v) => {
       if (!v.noticeDate) return null;
+      const earliest = addDays(v.noticeDate, 10);
       return {
-        expires: addDays(v.noticeDate, 10),
-        note:
-          'The cure period is at least 10 days after service. This estimate assumes ' +
-          'service on the notice date; mailing may add days. Confirm before serving.',
+        items: [
+          { tone: 'info', text: `Give this notice to your tenant on or about ${fmtDate(v.noticeDate)}.` },
+          { tone: 'must', text: `The tenant has at least 10 days — until about ${fmtDate(earliest)} — to fix the problem.` },
+          { tone: 'cannot', text: `If the tenant fixes the problem in time, you generally cannot evict over it.` },
+          { tone: 'warn', text: 'If you mail the notice, add a few extra days before the cure deadline.' },
+        ],
       };
     },
     serviceInstructions: [
@@ -459,12 +535,16 @@ export const DOCUMENTS = {
     statutes: ['RPAPL § 711', 'RPAPL § 735'],
     Pdf: HoldoverPetition,
     fields: [
-      { key: 'indexNumber', label: 'Index / L&T number (if assigned)' },
-      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
-      { key: 'petitionerAddress', label: 'Petitioner address' },
-      { key: 'respondentNames', label: 'Respondent (tenant) name(s)' },
-      { key: 'premisesAddress', label: 'Premises address' },
-      { key: 'groundType', label: 'Ground for the holdover', type: 'select',
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number (if you have one yet)',
+        placeholder: 'Leave blank if none yet' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name', placeholder: 'e.g., Acme Property LLC' },
+      { key: 'petitionerAddress', label: 'Petitioner address', placeholder: 'e.g., 500 Owner Ave, Brooklyn, NY 11215' },
+      { key: 'respondentNames', label: 'Respondent (tenant) name(s)',
+        placeholder: 'e.g., John Tenant', example: DOE_HELP },
+      { key: 'premisesAddress', label: 'Premises address (the rented home)',
+        placeholder: 'e.g., 123 Main Street, Apt 4B, Brooklyn, NY 11201' },
+      { key: 'groundType', label: 'Why is the tenant being asked to leave?', type: 'select',
         options: [
           'the tenancy was terminated by notice',
           'the lease expired and was not renewed',
@@ -516,10 +596,12 @@ export const DOCUMENTS = {
     statutes: ['RPAPL § 711', 'CPLR § 1101'],
     Pdf: AnswerHoldover,
     fields: [
-      { key: 'indexNumber', label: 'Index / L&T number' },
-      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
-      { key: 'respondentNames', label: 'Your name (respondent)' },
-      { key: 'premisesAddress', label: 'Premises address' },
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number', placeholder: 'From your court papers' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name', placeholder: "Your landlord's name" },
+      { key: 'respondentNames', label: 'Your name (respondent)', placeholder: 'e.g., Jane Tenant' },
+      { key: 'premisesAddress', label: 'Premises address (your home)',
+        placeholder: 'e.g., 123 Main Street, Apt 4B, Brooklyn, NY 11201' },
       { key: 'defenses', label: 'Which defenses apply to you?', type: 'checklist',
         tip: 'Select all that apply. Each becomes a numbered affirmative defense.',
         options: HOLDOVER_DEFENSES.map((d) => ({ value: d.value, label: d.title })) },

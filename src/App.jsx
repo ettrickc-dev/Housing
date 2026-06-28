@@ -13,6 +13,7 @@ import LawUpdates from './pages/LawUpdates.jsx';
 import Courts from './pages/Courts.jsx';
 import Pricing from './pages/Pricing.jsx';
 import Account from './pages/Account.jsx';
+import Landing from './pages/Landing.jsx';
 import IntakeWizard from './intake/IntakeWizard.jsx';
 
 // Code-split the document generator: it pulls in the heavy React-PDF renderer,
@@ -29,7 +30,7 @@ function Header() {
   }
   return (
     <header className="border-b border-gray-200">
-      <div className="mx-auto flex max-w-prose items-center justify-between px-4 py-4">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
         <Link to="/" className="text-lg font-bold text-navy">
           {APP_NAME}
         </Link>
@@ -81,48 +82,6 @@ function Footer() {
         </p>
       </div>
     </footer>
-  );
-}
-
-function Landing() {
-  const { user } = useAuth();
-  return (
-    <main className="mx-auto max-w-prose px-4 py-10">
-      <Disclaimer variant="banner" />
-      <h1 className="mt-8 text-3xl font-bold text-navy">
-        New York Housing Court documents, in plain English.
-      </h1>
-      <p className="mt-4 text-gray-700">
-        PlainRights Court helps landlords and tenants prepare New York State
-        landlord-tenant court documents — predicate notices, petitions, answers,
-        and motions — with step-by-step guidance, deadline calculators, and filing
-        instructions. You stay in control; we prepare the paperwork.
-      </p>
-
-      <div className="mt-8">
-        <Link
-          to={user ? '/dashboard' : '/login'}
-          className="inline-block rounded-md bg-accent px-6 py-3 font-medium text-white hover:bg-blue-700"
-        >
-          {user ? 'Go to your dashboard' : 'Get started — create a free account'}
-        </Link>
-      </div>
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 p-5">
-          <h2 className="font-semibold text-navy">I am a landlord / owner</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Rent demands, holdover notices, petitions, affidavits of service.
-          </p>
-        </div>
-        <div className="rounded-lg border border-gray-200 p-5">
-          <h2 className="font-semibold text-navy">I am a tenant / occupant</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Answers, defenses, orders to show cause, repair (HP) actions.
-          </p>
-        </div>
-      </div>
-    </main>
   );
 }
 

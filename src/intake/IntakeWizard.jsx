@@ -172,35 +172,61 @@ function BigButton({ label, blurb, selected, onClick }) {
 
 function NeedMenu({ role, onPick }) {
   const groups = NEEDS[role] || [];
+  const [openGroup, setOpenGroup] = useState(null);
+
+  // Level 1: pick a goal. We only show one category's forms at a time so the
+  // page isn't an overwhelming wall of legal documents.
+  if (openGroup === null) {
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-gray-600">First, what do you want to do?</p>
+        {groups.map((g, i) => {
+          const readyCount = g.items.filter((it) => it.ready).length;
+          return (
+            <button
+              key={g.group}
+              onClick={() => setOpenGroup(i)}
+              className="flex w-full items-center justify-between rounded-lg border border-gray-200 p-4 text-left hover:border-accent"
+            >
+              <span>
+                <span className="block font-semibold text-navy">{g.group}</span>
+                <span className="mt-0.5 block text-xs text-gray-500">
+                  {readyCount} {readyCount === 1 ? 'form' : 'forms'} available
+                </span>
+              </span>
+              <span className="text-gray-400">→</span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Level 2: the forms inside the chosen goal.
+  const g = groups[openGroup];
   return (
-    <div className="space-y-6">
-      {groups.map((g) => (
-        <div key={g.group}>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{g.group}</h2>
-          <ul className="mt-2 space-y-2">
-            {g.items.map((item) => (
-              <li key={item.key}>
-                <button onClick={() => onPick(item)}
-                  disabled={!item.ready}
-                  className={`flex w-full items-center justify-between rounded-md border p-3 text-left text-sm ${
-                    item.ready ? 'border-gray-200 hover:border-accent'
-                    : 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-400'}`}>
-                  <span>
-                    {item.label}
-                    {item.statute && (
-                      <span className="ml-2 text-xs text-gray-400">{item.statute}</span>
-                    )}
-                  </span>
-                  <span className={`ml-3 shrink-0 rounded px-2 py-0.5 text-xs ${
-                    item.ready ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-400'}`}>
-                    {item.ready ? 'Start' : 'Soon'}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+    <div>
+      <button onClick={() => setOpenGroup(null)} className="mb-3 text-sm text-gray-500 hover:text-accent">
+        ← All categories
+      </button>
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{g.group}</h2>
+      <ul className="mt-3 space-y-2">
+        {g.items.map((item) => (
+          <li key={item.key}>
+            <button onClick={() => onPick(item)}
+              disabled={!item.ready}
+              className={`flex w-full items-center justify-between rounded-md border p-3 text-left text-sm ${
+                item.ready ? 'border-gray-200 hover:border-accent'
+                : 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-400'}`}>
+              <span>{item.label}</span>
+              <span className={`ml-3 shrink-0 rounded px-2 py-0.5 text-xs ${
+                item.ready ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-400'}`}>
+                {item.ready ? 'Start' : 'Soon'}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
