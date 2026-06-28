@@ -95,6 +95,79 @@ const COURT_FIELDS = [
     example: 'The county where the property is located.' },
 ];
 
+const REGULATORY_OPTIONS = [
+  { value: 'market_rate', label: 'Market rate / unregulated' },
+  { value: 'rent_stabilized', label: 'Rent stabilized' },
+  { value: 'rent_controlled', label: 'Rent controlled' },
+  { value: 'nycha', label: 'NYCHA / public housing' },
+];
+const GOOD_CAUSE_STATUS = [
+  { value: 'not_covered', label: 'NOT covered by Good Cause Eviction' },
+  { value: 'covered', label: 'Covered by Good Cause Eviction' },
+];
+const SIGNER_ROLES = ['Petitioner', 'Agent for Petitioner', 'Attorney for Petitioner'];
+
+// Good Cause disclosure fields for predicate notices (required in legal notices).
+const NOTICE_GOODCAUSE_FIELDS = [
+  { key: 'goodCauseStatus', label: 'Good Cause Eviction coverage (required disclosure)', type: 'select',
+    options: GOOD_CAUSE_STATUS,
+    example: 'The 2024 law requires legal notices to state whether the unit is covered. Unsure? Use the Good Cause checker in the intake wizard.' },
+  { key: 'goodCauseReason', label: 'If NOT covered, the reason',
+    placeholder: 'e.g., small landlord (owns 10 or fewer units statewide)',
+    example: 'Leave blank if covered.' },
+];
+const NOTICE_GOODCAUSE_DEFAULTS = { goodCauseStatus: 'not_covered', goodCauseReason: '' };
+
+// Maps the intake housing type to the petition's regulatory-status field.
+function regFromHousing(h) {
+  if (h === 'rent_stabilized' || h === 'rent_controlled' || h === 'nycha') return h;
+  return 'market_rate';
+}
+
+// Shared field set for the new robust petitions (regulatory + Good Cause + signer).
+const REG_GOODCAUSE_FIELDS = [
+  { key: 'tenancyType', label: 'Was the rental agreement written or oral?', type: 'select',
+    options: [{ value: 'written', label: 'Written lease' }, { value: 'oral', label: 'Oral / month-to-month' }] },
+  { key: 'regulatoryStatus', label: "The apartment's regulation status", type: 'select',
+    options: REGULATORY_OPTIONS,
+    example: 'Market rate = a normal private rental with no rent regulation.' },
+  { key: 'exemptionReason', label: 'If unregulated, why? (for the petition)',
+    placeholder: 'e.g., the building is a four-family dwelling',
+    example: 'Common reasons: "the building has fewer than 6 units", "a two-family owner-occupied home", "built after 1974 without tax benefits". Leave blank if regulated.' },
+  { key: 'goodCauseStatus', label: 'Good Cause Eviction coverage (required disclosure)', type: 'select',
+    options: GOOD_CAUSE_STATUS,
+    example: 'The law (2024) requires every legal notice to state whether the unit is covered. If unsure, use the Good Cause checker in the intake wizard.' },
+  { key: 'goodCauseReason', label: 'If NOT covered by Good Cause, the reason',
+    placeholder: 'e.g., the landlord is a small landlord (owns 10 or fewer units statewide)',
+    example: 'Common exemptions: small landlord (≤10 units statewide); owner-occupied building with ≤10 units; the unit is already rent-regulated; rent above the local high-rent threshold; the locality has not opted in. Leave blank if covered.' },
+  { key: 'signerName', label: 'Who is signing the petition?', placeholder: 'Full name of the person signing' },
+  { key: 'signerRole', label: 'Signing as', type: 'select', options: SIGNER_ROLES },
+  { key: 'attorneyFees', label: "Attorneys' fees claimed ($, optional)", type: 'number', placeholder: '0' },
+];
+
+function petitionDefaults(p) {
+  const court = deriveCourt(p);
+  return {
+    courtName: court.courtName,
+    county: court.county,
+    isNyc: p.location_type === 'nyc',
+    indexNumber: p.court_index_number || '',
+    petitionerName: p.full_name || '',
+    petitionerAddress: fullAddress(p),
+    respondentNames: p.landlord_name || '',
+    premisesAddress: fullAddress(p),
+    tenancyType: 'written',
+    regulatoryStatus: regFromHousing(p.housing_type),
+    exemptionReason: '',
+    goodCauseStatus: 'not_covered',
+    goodCauseReason: '',
+    signerName: p.full_name || '',
+    signerRole: 'Petitioner',
+    attorneyFees: '',
+    petitionDate: '',
+  };
+}
+
 function fullAddress(p = {}) {
   return joinAddress([
     p.address_line1,
@@ -144,6 +217,7 @@ export const DOCUMENTS = {
         example: 'Add up everything currently unpaid.' },
       { key: 'demandDate', label: 'Date you will give this notice', type: 'date',
         example: 'Usually today or the day you plan to serve it.' },
+      ...NOTICE_GOODCAUSE_FIELDS,
     ],
     defaults: (p) => ({
       tenantNames: p.landlord_name || '',
@@ -155,6 +229,7 @@ export const DOCUMENTS = {
       monthlyRent: p.rent_amount ?? '',
       arrearsTotal: p.arrears_amount ?? '',
       demandDate: '',
+      ...NOTICE_GOODCAUSE_DEFAULTS,
     }),
     derive: (v) => ({ ...v, expiresDate: addDays(v.demandDate, 14) }),
     dateInfo: (v) => {
@@ -205,27 +280,17 @@ export const DOCUMENTS = {
         example: 'The day your rent demand was actually given to the tenant.' },
       { key: 'demandMethod', label: 'How was the demand delivered?', type: 'select',
         options: ['Personal delivery', 'Substituted service + mailing', 'Conspicuous (nail and mail) + mailing'] },
+      ...REG_GOODCAUSE_FIELDS,
       { key: 'petitionDate', label: 'Date of this petition', type: 'date' },
     ],
-    defaults: (p) => {
-      const court = deriveCourt(p);
-      return {
-        courtName: court.courtName,
-        county: court.county,
-        indexNumber: p.court_index_number || '',
-        petitionerName: p.full_name || '',
-        petitionerAddress: fullAddress(p),
-        respondentNames: p.landlord_name || '',
-        premisesAddress: fullAddress(p),
-        regulatoryStatus: HOUSING_LABEL[p.housing_type] || 'not specified',
-        rentPeriods: '',
-        monthlyRent: p.rent_amount ?? '',
-        arrearsTotal: p.arrears_amount ?? '',
-        demandServedDate: '',
-        demandMethod: 'Personal delivery',
-        petitionDate: '',
-      };
-    },
+    defaults: (p) => ({
+      ...petitionDefaults(p),
+      rentPeriods: '',
+      monthlyRent: p.rent_amount ?? '',
+      arrearsTotal: p.arrears_amount ?? '',
+      demandServedDate: '',
+      demandMethod: 'Personal delivery',
+    }),
     derive: (v) => v,
     dateInfo: () => null,
     serviceInstructions: [
@@ -431,6 +496,7 @@ export const DOCUMENTS = {
         example: 'Usually today or when you plan to serve it.' },
       { key: 'terminationDate', label: 'Date the tenant must move out by', type: 'date',
         example: 'Pick a date on or after the earliest date shown in the deadline box.' },
+      ...NOTICE_GOODCAUSE_FIELDS,
     ],
     defaults: (p) => ({
       tenantNames: p.landlord_name || '',
@@ -441,6 +507,7 @@ export const DOCUMENTS = {
       noticeDays: '30',
       noticeDate: '',
       terminationDate: '',
+      ...NOTICE_GOODCAUSE_DEFAULTS,
     }),
     derive: (v) => v,
     dateInfo: (v) => {
@@ -494,6 +561,7 @@ export const DOCUMENTS = {
         example: 'Usually today or when you plan to serve it.' },
       { key: 'cureDate', label: 'Deadline for the tenant to fix it', type: 'date',
         example: 'Pick a date on or after the earliest date shown in the deadline box.' },
+      ...NOTICE_GOODCAUSE_FIELDS,
     ],
     defaults: (p) => ({
       tenantNames: p.landlord_name || '',
@@ -505,6 +573,7 @@ export const DOCUMENTS = {
       violationDescription: '',
       noticeDate: '',
       cureDate: '',
+      ...NOTICE_GOODCAUSE_DEFAULTS,
     }),
     derive: (v) => v,
     dateInfo: (v) => {
@@ -554,29 +623,25 @@ export const DOCUMENTS = {
           'the owner seeks the unit for personal/family use',
         ] },
       { key: 'noticeType', label: 'Predicate notice that was served',
-        tip: 'e.g. "90-Day Notice of Termination" or "10-Day Notice to Cure".' },
+        placeholder: 'e.g., 90-Day Notice of Termination',
+        example: 'The notice you gave before filing, e.g. "90-Day Notice of Termination" or "10-Day Notice to Cure".' },
+      { key: 'noticeDays', label: 'Notice period given', type: 'select',
+        options: [{ value: '10', label: '10 days' }, { value: '30', label: '30 days' }, { value: '60', label: '60 days' }, { value: '90', label: '90 days' }] },
       { key: 'noticeServedDate', label: 'Date the predicate notice was served', type: 'date' },
-      { key: 'useOccupancy', label: 'Monthly use & occupancy value ($)', type: 'number' },
+      { key: 'termExpiredDate', label: 'Date the tenancy/term ended', type: 'date' },
+      { key: 'useOccupancy', label: 'Monthly use & occupancy value ($)', type: 'number', placeholder: '2000' },
+      ...REG_GOODCAUSE_FIELDS,
       { key: 'petitionDate', label: 'Date of this petition', type: 'date' },
     ],
-    defaults: (p) => {
-      const court = deriveCourt(p);
-      return {
-        courtName: court.courtName,
-        county: court.county,
-        indexNumber: p.court_index_number || '',
-        petitionerName: p.full_name || '',
-        petitionerAddress: fullAddress(p),
-        respondentNames: p.landlord_name || '',
-        premisesAddress: fullAddress(p),
-        regulatoryStatus: HOUSING_LABEL[p.housing_type] || 'not specified',
-        groundType: 'the tenancy was terminated by notice',
-        noticeType: '',
-        noticeServedDate: '',
-        useOccupancy: p.rent_amount ?? '',
-        petitionDate: '',
-      };
-    },
+    defaults: (p) => ({
+      ...petitionDefaults(p),
+      groundType: 'the tenancy was terminated by notice',
+      noticeType: '',
+      noticeDays: '90',
+      noticeServedDate: '',
+      termExpiredDate: '',
+      useOccupancy: p.rent_amount ?? '',
+    }),
     derive: (v) => v,
     dateInfo: () => null,
     serviceInstructions: [

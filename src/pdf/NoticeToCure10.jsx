@@ -1,6 +1,7 @@
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { styles, fmtDate } from './pdfTheme.js';
 import { PdfFooter, PdfPageNumber, PdfWatermark } from './PdfShared.jsx';
+import { GoodCauseDisclosure } from './PdfBlocks.jsx';
 import InstructionsPage from './InstructionsPage.jsx';
 
 // 10-Day Notice to Cure a lease violation (predicate to a holdover proceeding
@@ -52,6 +53,8 @@ export default function NoticeToCure10({ data = {}, watermark = false, lawReview
         </Text>
 
         <Text style={[styles.small, styles.para]}>Date of this notice: {fmtDate(noticeDate)}</Text>
+
+        <GoodCauseDisclosure status={data.goodCauseStatus} reason={data.goodCauseReason} />
 
         <View style={styles.sigLine}>
           <Text>{landlordName}</Text>

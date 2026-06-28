@@ -1,6 +1,7 @@
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { styles, fmtDate } from './pdfTheme.js';
 import { PdfFooter, PdfPageNumber, PdfWatermark } from './PdfShared.jsx';
+import { GoodCauseDisclosure } from './PdfBlocks.jsx';
 import InstructionsPage from './InstructionsPage.jsx';
 
 // Notice of Termination of a month-to-month / expired tenancy. The required
@@ -54,6 +55,8 @@ export default function TerminationNotice({ data = {}, watermark = false, lawRev
         </Text>
 
         <Text style={[styles.small, styles.para]}>Date of this notice: {fmtDate(noticeDate)}</Text>
+
+        <GoodCauseDisclosure status={data.goodCauseStatus} reason={data.goodCauseReason} />
 
         <View style={styles.sigLine}>
           <Text>{landlordName}</Text>

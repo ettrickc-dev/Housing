@@ -2,126 +2,126 @@ import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { styles, fmtMoney, fmtDate } from './pdfTheme.js';
 import { PdfFooter, PdfPageNumber, PdfWatermark } from './PdfShared.jsx';
 import InstructionsPage from './InstructionsPage.jsx';
+import {
+  Caption, TenantNoticeSection, GoodCauseDisclosure, Verification, Numbered,
+} from './PdfBlocks.jsx';
 
-// Nonpayment Petition + Notice of Petition (summary proceeding).
-// Court caption is chosen from the user's location (NYC vs outside).
+// Full Notice of Petition + Petition (Nonpayment), modeled on the NYC L&T form,
+// including the tenant-resources notice, regulatory-status allegations, the Good
+// Cause Eviction disclosure (L. 2024, ch. 56), WHEREFORE, and verification.
 export default function NonpaymentPetition({ data = {}, watermark = false, lawReviewDate, instructions }) {
-  const {
-    courtName = 'CIVIL COURT OF THE CITY OF NEW YORK — HOUSING PART',
-    county = '____________________',
-    indexNumber = '',
-    petitionerName = '____________________',
-    petitionerAddress = '____________________',
-    respondentNames = '____________________',
-    premisesAddress = '____________________',
-    regulatoryStatus = 'not specified',
-    arrearsTotal = 0,
-    rentPeriods = '____________________',
-    monthlyRent = 0,
-    demandServedDate,
-    demandMethod = '____________________',
-    petitionDate,
-  } = data;
+  const d = {
+    courtName: 'CIVIL COURT OF THE CITY OF NEW YORK',
+    county: '____________',
+    indexNumber: '',
+    petitionerName: '____________',
+    petitionerAddress: '____________',
+    respondentNames: '____________',
+    premisesAddress: '____________',
+    isNyc: true,
+    tenancyType: 'written',
+    monthlyRent: 0,
+    rentPeriods: '____________',
+    arrearsTotal: 0,
+    demandServedDate: null,
+    demandMethod: '____________',
+    regulatoryStatus: 'market_rate',
+    exemptionReason: '',
+    goodCauseStatus: 'not_covered',
+    goodCauseReason: '',
+    attorneyFees: 0,
+    petitionDate: null,
+    signerName: '____________',
+    signerRole: 'Petitioner',
+    ...data,
+    moneyJudgment: data.arrearsTotal || 0,
+  };
+
+  const regLine = regulatoryClause(d.regulatoryStatus, d.exemptionReason);
 
   return (
-    <Document title="Nonpayment Petition">
+    <Document title="Notice of Petition and Petition (Nonpayment)">
+      {/* ---------- NOTICE OF PETITION ---------- */}
       <Page size="LETTER" style={styles.page}>
         <PdfWatermark show={watermark} />
-
-        {/* Caption */}
-        <View style={styles.captionWrap}>
-          <Text style={[styles.bold, styles.center]}>{courtName}</Text>
-          <Text style={[styles.center, styles.small]}>COUNTY OF {county}</Text>
-          <View style={[styles.captionRow, { marginTop: 6 }]}>
-            <View style={{ maxWidth: 280 }}>
-              <Text>{petitionerName},</Text>
-              <Text style={styles.small}>Petitioner (Landlord/Owner),</Text>
-              <Text style={[styles.small, { marginVertical: 4 }]}>-against-</Text>
-              <Text>{respondentNames},</Text>
-              <Text style={styles.small}>Respondent(s) (Tenant/Occupant).</Text>
-            </View>
-            <View style={styles.indexBox}>
-              <Text style={styles.small}>Index / L&amp;T No.</Text>
-              <Text style={styles.bold}>{indexNumber || '____________'}</Text>
-              <Text style={[styles.small, { marginTop: 6 }]}>NONPAYMENT</Text>
-              <Text style={styles.small}>PETITION</Text>
-            </View>
-          </View>
-        </View>
-
-        <Text style={styles.para}>
-          The petition of the above-named Petitioner respectfully shows and alleges:
-        </Text>
-
-        <Numbered n={1}>
-          Petitioner is the landlord/owner of the premises located at {premisesAddress}{' '}
-          (the “Premises”) and is authorized to bring this proceeding.
-        </Numbered>
-        <Numbered n={2}>
-          Respondent(s) entered into possession of the Premises as tenant(s)/occupant(s)
-          and remain in possession.
-        </Numbered>
-        <Numbered n={3}>
-          The regulatory status of the Premises is: {regulatoryStatus}.
-        </Numbered>
-        <Numbered n={4}>
-          Respondent(s) have defaulted in the payment of rent. There is now due and
-          owing the sum of <Text style={styles.bold}>{fmtMoney(arrearsTotal)}</Text> for
-          the period(s): {rentPeriods}
-          {monthlyRent ? `, at the monthly rent of ${fmtMoney(monthlyRent)}.` : '.'}
-        </Numbered>
-        <Numbered n={5}>
-          A written fourteen (14) day rent demand was served upon Respondent(s) on or
-          about {fmtDate(demandServedDate)} by the following method: {demandMethod}.
-          Respondent(s) failed to pay the amount demanded or to surrender possession.
-        </Numbered>
-
-        <Text style={[styles.para, styles.bold, { marginTop: 8 }]}>
-          WHEREFORE, Petitioner demands a final judgment:
-        </Text>
-        <Text style={styles.para}>
-          (a) awarding possession of the Premises to Petitioner and the issuance of a
-          warrant to remove Respondent(s); (b) for a money judgment in the amount of{' '}
-          {fmtMoney(arrearsTotal)} plus rent accruing; and (c) for such other relief as
-          the Court deems just, together with the costs and disbursements of this
-          proceeding.
-        </Text>
-
-        <Text style={[styles.small, styles.para]}>Dated: {fmtDate(petitionDate)}</Text>
+        <Caption data={d} docLabel="NOTICE OF PETITION" proceedingType="Nonpayment — Dwelling" />
+        <TenantNoticeSection data={d} caseType="nonpayment" />
+        <Text style={[styles.small, styles.para, { marginTop: 8 }]}>Dated: {fmtDate(d.petitionDate)}</Text>
         <View style={styles.sigLine}>
-          <Text>{petitionerName}</Text>
-          <Text style={styles.small}>Petitioner</Text>
-          <Text style={styles.small}>{petitionerAddress}</Text>
+          <Text>______________________________</Text>
+          <Text style={styles.small}>Clerk of the Court / {d.signerRole}</Text>
+          <Text style={styles.small}>{d.petitionerName} · {d.petitionerAddress}</Text>
         </View>
-
-        {/* Verification / jurat */}
-        <View style={styles.juratBox}>
-          <Text style={styles.bold}>VERIFICATION</Text>
-          <Text style={[styles.small, { marginTop: 4 }]}>
-            STATE OF NEW YORK, COUNTY OF {county} ss.:
-          </Text>
-          <Text style={[styles.small, { marginTop: 4 }]}>
-            The undersigned, being duly sworn, deposes and says that deponent is the
-            Petitioner herein; that deponent has read the foregoing petition and knows
-            the contents thereof; and that the same is true to deponent’s own knowledge,
-            except as to matters stated to be alleged on information and belief, and as
-            to those matters deponent believes them to be true.
-          </Text>
-          <View style={[styles.captionRow, { marginTop: 22 }]}>
-            <Text style={styles.small}>
-              Sworn to before me this ____ day of __________, 20____{'\n\n'}
-              ______________________________ (Notary Public)
-            </Text>
-            <Text style={styles.small}>
-              ______________________________{'\n'}
-              {petitionerName} (Petitioner)
-            </Text>
-          </View>
-        </View>
-
+        <Text style={[styles.small, { marginTop: 10, fontFamily: 'Helvetica-Oblique' }]}>
+          IMPORTANT TO TENANT — If you or a person you depend on is in the military
+          service, tell the Clerk of the Court immediately to protect your rights.
+        </Text>
         <PdfFooter lawReviewDate={lawReviewDate} hasStatutes />
         <PdfPageNumber />
       </Page>
+
+      {/* ---------- PETITION ---------- */}
+      <Page size="LETTER" style={styles.page}>
+        <PdfWatermark show={watermark} />
+        <Caption data={d} docLabel="PETITION" proceedingType="Nonpayment — Dwelling" />
+        <Text style={styles.para}>
+          The petition of {d.petitionerName}, the owner and landlord of the Premises,
+          respectfully shows and alleges:
+        </Text>
+        <Numbered n={1}>Petitioner is the owner and landlord of the Premises and is authorized to bring this proceeding.</Numbered>
+        <Numbered n={2}>
+          Respondent(s) {d.respondentNames} are the tenant(s) of the Premises, who
+          entered into possession under a {d.tenancyType} rental agreement and have
+          continued in possession.
+        </Numbered>
+        <Numbered n={3}>
+          The Premises are: {d.premisesAddress}, situated within the territorial
+          jurisdiction of this Court.
+        </Numbered>
+        <Numbered n={4}>
+          The Respondent(s) have defaulted in the payment of rent. There is due and owing
+          the sum of <Text style={styles.bold}>{fmtMoney(d.arrearsTotal)}</Text> for the
+          following period(s): {d.rentPeriods}
+          {d.monthlyRent ? `, at the monthly rent of ${fmtMoney(d.monthlyRent)}.` : '.'}
+        </Numbered>
+        <Numbered n={5}>
+          A written rent demand was served upon Respondent(s) on or about{' '}
+          {fmtDate(d.demandServedDate)} by the following method: {d.demandMethod}.
+          Respondent(s) failed to pay the amount demanded or to surrender possession.
+        </Numbered>
+        <Numbered n={6}>{regLine}</Numbered>
+        <Numbered n={7}>
+          Respondent(s) continue in possession without having paid the rent due, and
+          Petitioner is entitled to a judgment of possession and for the rent in arrears.
+        </Numbered>
+
+        <GoodCauseDisclosure status={d.goodCauseStatus} reason={d.goodCauseReason} />
+
+        <Text style={[styles.bold, styles.para, { marginTop: 8 }]}>WHEREFORE, Petitioner requests a final judgment:</Text>
+        <Text style={styles.para}>
+          (a) awarding possession of the Premises to Petitioner and the issuance of a
+          warrant to remove Respondent(s); (b) for a money judgment of{' '}
+          {fmtMoney(d.arrearsTotal)} in rent arrears plus continuing use and occupancy;
+          {d.attorneyFees ? ` (c) for attorneys' fees of ${fmtMoney(d.attorneyFees)};` : ''}{' '}
+          and for the costs and disbursements of this proceeding.
+        </Text>
+        <Text style={[styles.small, styles.para]}>Dated: {fmtDate(d.petitionDate)}</Text>
+        <View style={styles.sigLine}>
+          <Text>{d.signerName}</Text>
+          <Text style={styles.small}>{d.signerRole}</Text>
+        </View>
+        <PdfFooter lawReviewDate={lawReviewDate} hasStatutes />
+        <PdfPageNumber />
+      </Page>
+
+      {/* ---------- VERIFICATION ---------- */}
+      <Page size="LETTER" style={styles.page}>
+        <PdfWatermark show={watermark} />
+        <Verification county={d.county} signerName={d.signerName} role={d.signerRole} />
+        <PdfFooter lawReviewDate={lawReviewDate} hasStatutes />
+        <PdfPageNumber />
+      </Page>
+
       {instructions && (
         <InstructionsPage instructions={instructions} lawReviewDate={lawReviewDate} />
       )}
@@ -129,11 +129,16 @@ export default function NonpaymentPetition({ data = {}, watermark = false, lawRe
   );
 }
 
-function Numbered({ n, children }) {
+// Regulatory-status allegation language by housing type.
+function regulatoryClause(status, exemptionReason) {
+  if (status === 'rent_stabilized')
+    return 'The Premises ARE subject to the Rent Stabilization Law, and Petitioner has complied with its requirements, including registration and lawful rent.';
+  if (status === 'rent_controlled')
+    return 'The Premises ARE subject to rent control, and Petitioner has complied with the applicable requirements.';
+  if (status === 'nycha')
+    return 'The Premises are part of a public-housing / NYCHA tenancy subject to applicable federal and state requirements.';
   return (
-    <View style={[styles.para, { flexDirection: 'row' }]}>
-      <Text style={[styles.bold, { width: 18 }]}>{n}.</Text>
-      <Text style={{ flex: 1 }}>{children}</Text>
-    </View>
+    'The Premises are NOT subject to rent control or the Rent Stabilization Law' +
+    (exemptionReason ? `, by reason of ${exemptionReason}.` : '.')
   );
 }

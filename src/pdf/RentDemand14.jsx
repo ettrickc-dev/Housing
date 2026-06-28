@@ -1,6 +1,7 @@
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { styles, fmtMoney, fmtDate } from './pdfTheme.js';
 import { PdfFooter, PdfPageNumber, PdfWatermark } from './PdfShared.jsx';
+import { GoodCauseDisclosure } from './PdfBlocks.jsx';
 import InstructionsPage from './InstructionsPage.jsx';
 
 // 14-Day Rent Demand (predicate notice for a nonpayment proceeding).
@@ -73,6 +74,8 @@ export default function RentDemand14({ data = {}, watermark = false, lawReviewDa
         <Text style={[styles.para, styles.small]}>
           Date of this notice: {fmtDate(demandDate)}
         </Text>
+
+        <GoodCauseDisclosure status={data.goodCauseStatus} reason={data.goodCauseReason} />
 
         <View style={styles.sigLine}>
           <Text>{landlordName}</Text>
