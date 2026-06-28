@@ -2,12 +2,14 @@
 // Set SITE_URL in the environment when you have a custom domain.
 import { writeFileSync } from 'node:fs';
 import { FORM_PAGES } from '../src/lib/seoContent.js';
+import { GUIDES } from '../src/lib/guidesContent.js';
 
 const SITE = (process.env.SITE_URL || 'https://aesthetic-kitsune-d771d3.netlify.app').replace(/\/$/, '');
 
-const staticPaths = ['/', '/forms', '/pricing', '/courts'];
+const staticPaths = ['/', '/forms', '/guides', '/pricing', '/courts'];
 const formPaths = FORM_PAGES.map((p) => `/forms/${p.slug}`);
-const all = [...staticPaths, ...formPaths];
+const guidePaths = GUIDES.map((g) => `/guides/${g.slug}`);
+const all = [...staticPaths, ...formPaths, ...guidePaths];
 
 const urls = all
   .map((u) => `  <url><loc>${SITE}${u}</loc><changefreq>monthly</changefreq></url>`)

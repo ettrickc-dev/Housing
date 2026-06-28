@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { getFormPage } from '../lib/seoContent.js';
+import { getFormPage, FORM_PAGES } from '../lib/seoContent.js';
 import { useSeo } from '../lib/useSeo.js';
 import { LEGAL_DISCLAIMER } from '../lib/constants.js';
 
@@ -7,7 +7,25 @@ export default function FormLanding() {
   const { slug } = useParams();
   const page = getFormPage(slug);
 
-  useSeo(page?.title, page?.metaDescription);
+  // FAQ structured data → eligible for Google rich results (higher click-through).
+  const jsonLd = page
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: page.faq.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      }
+    : null;
+
+  useSeo({ title: page?.title, description: page?.metaDescription, jsonLd });
+
+  // A few related forms for the same audience (internal links = SEO + funnel).
+  const related = page
+    ? FORM_PAGES.filter((p) => p.audience === page.audience && p.slug !== page.slug).slice(0, 3)
+    : [];
 
   if (!page) {
     return (
@@ -67,6 +85,21 @@ export default function FormLanding() {
           Start your {page.h1.replace('New York ', '')}
         </Link>
       </div>
+
+      {related.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold text-navy">Related forms</h2>
+          <ul className="mt-2 space-y-1">
+            {related.map((r) => (
+              <li key={r.slug}>
+                <Link to={`/forms/${r.slug}`} className="text-accent underline">
+                  {r.h1}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <p className="mt-10 rounded-md bg-panel px-4 py-3 text-xs leading-relaxed text-gray-500">
         {LEGAL_DISCLAIMER}

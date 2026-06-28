@@ -1,11 +1,27 @@
 import { Link } from 'react-router-dom';
 import { LEGAL_DISCLAIMER } from '../lib/constants.js';
 import { ANCHOR } from '../lib/pricing.js';
+import { useSeo } from '../lib/useSeo.js';
 
 // Professional, confidence-building landing page. Authoritative tone WITHOUT
 // implying any government/court affiliation (we are an independent self-help service).
 export default function Landing() {
   const go = '/start'; // public — build & preview before signing up
+
+  useSeo({
+    title: 'New York Housing Court Forms — Eviction & Tenant Documents | PlainRights Court',
+    description:
+      'Prepare New York landlord-tenant court documents in plain English — rent demands, eviction petitions, tenant answers, and more. Free to build and preview; deadlines calculated for you.',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: LANDING_FAQ.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+  });
 
   return (
     <div>
@@ -134,8 +150,40 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Free guides (SEO + funnel) */}
+      <section className="mx-auto max-w-5xl px-4 py-10 text-center">
+        <h2 className="text-2xl font-bold text-navy">New to housing court? Start with a free guide</h2>
+        <p className="mx-auto mt-2 max-w-2xl text-sm text-gray-600">
+          Plain-English walkthroughs of the New York eviction process — for landlords and tenants.
+        </p>
+        <div className="mt-4 flex flex-wrap justify-center gap-3">
+          <Link to="/guides/how-to-evict-a-tenant-in-new-york" className="rounded-md border border-gray-300 px-4 py-2 text-sm text-navy hover:border-accent">
+            How to evict a tenant in NY
+          </Link>
+          <Link to="/guides/how-to-respond-to-an-eviction-notice-in-new-york" className="rounded-md border border-gray-300 px-4 py-2 text-sm text-navy hover:border-accent">
+            How to respond to an eviction
+          </Link>
+          <Link to="/forms" className="rounded-md border border-gray-300 px-4 py-2 text-sm text-navy hover:border-accent">
+            Browse all forms
+          </Link>
+        </div>
+      </section>
+
+      {/* FAQ (also emitted as structured data for Google) */}
+      <section className="mx-auto max-w-3xl px-4 py-10">
+        <h2 className="text-center text-2xl font-bold text-navy">Frequently asked questions</h2>
+        <dl className="mt-6 space-y-5">
+          {LANDING_FAQ.map((f) => (
+            <div key={f.q}>
+              <dt className="font-semibold text-navy">{f.q}</dt>
+              <dd className="mt-1 text-sm text-gray-700">{f.a}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
       {/* Trust / disclaimer */}
-      <section className="mx-auto max-w-3xl px-4 py-12">
+      <section className="mx-auto max-w-3xl px-4 pb-12">
         <div className="rounded-xl border border-gray-200 bg-white p-6">
           <h2 className="font-semibold text-navy">Please read — what this service is</h2>
           <p className="mt-2 text-sm leading-relaxed text-gray-600">{LEGAL_DISCLAIMER}</p>
@@ -144,6 +192,14 @@ export default function Landing() {
     </div>
   );
 }
+
+const LANDING_FAQ = [
+  { q: 'Do I have to pay before I see my document?', a: 'No. You can build and preview your entire document for free. You only pay when you download the final, watermark-free copy to file.' },
+  { q: 'Is PlainRights Court a law firm?', a: 'No. We are an independent document-preparation and legal-education service — not a law firm, not the court, and not a substitute for a lawyer. We do not give legal advice.' },
+  { q: 'Will the court accept my document?', a: 'Documents are prepared from publicly available New York law and court forms, with filing instructions included. You stay in control and should confirm current requirements for your court; many self-represented people file successfully.' },
+  { q: "What if I don't know all the details, like the tenant's full name?", a: 'You can use "John Doe" or "Jane Doe" for unknown occupants, and every field has a plain-English example showing what to write.' },
+  { q: 'How much does it cost?', a: 'Single documents start around $25, or you can get unlimited documents with a monthly or annual subscription. An attorney typically charges $500+ for the same paperwork.' },
+];
 
 function Badge({ children }) {
   return <span className="whitespace-nowrap">{children}</span>;

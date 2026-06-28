@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/forms</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/guides</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/pricing</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/courts</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/forms/new-york-14-day-rent-demand</loc><changefreq>monthly</changefreq></url>
@@ -13,4 +14,7 @@
   <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/forms/new-york-tenant-answer-nonpayment</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/forms/new-york-tenant-answer-holdover</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/forms/new-york-order-to-show-cause-vacate-default</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/guides/how-to-evict-a-tenant-in-new-york</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/guides/how-to-respond-to-an-eviction-notice-in-new-york</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://aesthetic-kitsune-d771d3.netlify.app/guides/new-york-eviction-timeline-and-deadlines</loc><changefreq>monthly</changefreq></url>
 </urlset>

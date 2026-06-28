@@ -4,10 +4,11 @@ import { useSeo } from '../lib/useSeo.js';
 import Disclaimer from '../components/Disclaimer.jsx';
 
 export default function FormsIndex() {
-  useSeo(
-    'New York Housing Court Forms — Landlord & Tenant | PlainRights Court',
-    'Browse New York landlord-tenant court forms — rent demands, eviction petitions, tenant answers, and more. Build and preview free, in plain English.'
-  );
+  useSeo({
+    title: 'New York Housing Court Forms — Landlord & Tenant | PlainRights Court',
+    description:
+      'Browse New York landlord-tenant court forms — rent demands, eviction petitions, tenant answers, and more. Build and preview free, in plain English.',
+  });
 
   const landlord = FORM_PAGES.filter((p) => p.audience === 'Landlords');
   const tenant = FORM_PAGES.filter((p) => p.audience === 'Tenants');
