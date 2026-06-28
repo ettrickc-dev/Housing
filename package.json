@@ -6,7 +6,7 @@
   "description": "PlainRights Court — NY State landlord-tenant housing court document preparation & legal education platform. Document prep + self-help only; not legal advice.",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/gen-sitemap.mjs && vite build",
+    "build": "node scripts/gen-sitemap.mjs && vite build && node scripts/prerender-seo.mjs",
     "preview": "vite preview",
     "netlify:dev": "netlify dev",
     "lint": "eslint ."
