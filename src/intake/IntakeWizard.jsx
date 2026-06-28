@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
 import { getProfile, upsertProfile } from '../lib/profile.js';
 import { getLocalIntake, setLocalIntake } from '../lib/draft.js';
@@ -127,6 +127,14 @@ export default function IntakeWizard() {
 
       {step === 3 && (
         <Section title="What do you need to do?" onBack={() => setStep(2)}>
+          <div className="-mt-2 mb-4 rounded-md bg-panel px-4 py-3 text-sm text-gray-700">
+            New to this? You don't need to know legal terms. Pick the option that sounds
+            like your situation in plain words, and we'll prepare the right court document
+            and tell you exactly what to do next — including how to{' '}
+            <Link to="/efile" className="text-accent underline">file online from home</Link>.
+            Want background first? Read a{' '}
+            <Link to="/guides" className="text-accent underline">free step-by-step guide</Link>.
+          </div>
           <NeedMenu role={answers.role} onPick={openDocument} />
         </Section>
       )}

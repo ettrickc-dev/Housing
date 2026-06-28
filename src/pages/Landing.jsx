@@ -166,6 +166,9 @@ export default function Landing() {
           <Link to="/forms" className="rounded-md border border-gray-300 px-4 py-2 text-sm text-navy hover:border-accent">
             Browse all forms
           </Link>
+          <Link to="/efile" className="rounded-md border border-accent px-4 py-2 text-sm font-medium text-accent hover:bg-blue-50">
+            File online — skip the line
+          </Link>
         </div>
       </section>
 
@@ -206,6 +209,7 @@ function Badge({ children }) {
 }
 
 const COMPARISON = [
+  { label: 'Walks you through filing ONLINE (NYSCEF) — file from home, skip the hours-long line', free: false },
   { label: 'Plain-English questions (no legal jargon)', free: false },
   { label: 'Auto-fills your info across every document', free: false },
   { label: 'Calculates your service & filing deadlines', free: false },

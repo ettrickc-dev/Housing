@@ -58,6 +58,10 @@ const routes = [
     title: 'New York Eviction & Tenant Guides | PlainRights Court',
     description: 'Plain-English guides to New York housing court: how to evict a tenant, how to respond to an eviction case, deadlines, and where to file.',
   }],
+  ['/efile', {
+    title: 'File Your NY Eviction Case Online (NYSCEF) — Skip the Line | PlainRights Court',
+    description: 'How to e-file your New York landlord-tenant case from home through NYSCEF instead of waiting hours at the courthouse. Step-by-step for NYC and outside NYC.',
+  }],
   ['/pricing', {
     title: 'Pricing — Prepare NY Housing Court Documents | PlainRights Court',
     description: 'Affordable New York housing court document preparation. Pay per document or go unlimited with a subscription. Free to build and preview first.',

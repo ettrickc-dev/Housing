@@ -75,41 +75,70 @@ export function GoodCauseDisclosure({ status, reason }) {
 }
 
 // ---- "Notice of Petition" tenant-information / resources section ------------
+// Mirrors the official NYC L&T Notice of Petition. Nonpayment tells the tenant to
+// ANSWER within 10 days at the clerk's office; holdover gives a court return date.
 export function TenantNoticeSection({ data, caseType }) {
   const {
+    courtName = 'the Court',
+    county = '____________',
     premisesAddress = '____________',
     moneyJudgment = 0,
     isNyc = true,
   } = data;
+  const holdover = caseType === 'holdover';
+
   return (
     <View>
-      <Text style={[styles.bold, styles.para]}>Your landlord is suing you for eviction.</Text>
+      <Text style={[styles.bold, styles.para]}>
+        Your landlord is suing you for {holdover ? 'eviction' : 'nonpayment of rent'}.
+      </Text>
 
       <Numbered n={1}>
-        Your landlord has started a {caseType === 'holdover' ? 'holdover' : 'nonpayment'}{' '}
-        eviction case against you.{' '}
-        {caseType === 'holdover'
+        Your landlord has started a {holdover ? 'holdover' : 'nonpayment'} eviction case
+        against you.{' '}
+        {holdover
           ? 'That means the landlord says you should be evicted for a reason other than not paying rent. The reasons are in the attached Petition.'
-          : 'That means the landlord says you owe rent. The details are in the attached Petition.'}
+          : 'That means the landlord says you owe rent. The reasons are in the attached Petition.'}
       </Numbered>
       <Numbered n={2}>
-        Your landlord is asking this Court for permission to evict you from your home at{' '}
-        {premisesAddress}
-        {moneyJudgment ? `, and for a money judgment of ${fmtMoney(moneyJudgment)}.` : '.'}
+        Your landlord is asking this Court for{' '}
+        {moneyJudgment ? `a money judgment of ${fmtMoney(moneyJudgment)}, and ` : ''}
+        permission to evict you from your home at {premisesAddress}.
       </Numbered>
-      <Numbered n={3}>
-        You must come to court on the date and at the time and place shown on this Notice.{' '}
-        <Text style={styles.bold}>Warning!</Text> If you do not come to court, a judgment
-        may be entered against you and the landlord may have the right to evict you. You
-        have the right to ask the court to postpone the case for 14 days, but you must come
-        to court to ask for that.
-      </Numbered>
+
+      {holdover ? (
+        <Numbered n={3}>
+          You must come to {courtName}, County of {county}, on the date, time, and place
+          shown on this Notice. <Text style={styles.bold}>Warning!</Text> If you do not
+          come to court, a judgment may be entered against you and the landlord may have
+          the right to evict you. You have the right to postpone the case for 14 days, but
+          you must come to court to ask for that.
+        </Numbered>
+      ) : (
+        <Numbered n={3}>
+          You have a right to a trial. But first you must <Text style={styles.bold}>answer
+          the Petition within 10 days</Text> after these papers were delivered — by going
+          to the landlord-tenant Clerk's Office of {courtName}, County of {county}, and
+          telling the Clerk your answer, or by giving the Clerk a written answer (Form
+          CIV-LT-91a). <Text style={styles.bold}>Warning!</Text> If you do not answer
+          within 10 days, a judgment may be entered against you and the landlord may have
+          the right to evict you.
+        </Numbered>
+      )}
+
       <Numbered n={4}>
-        In court you may tell the judge the legal reasons you should be allowed to stay
-        (your defenses) and any claims you have against the landlord. You may also give
-        your Answer in writing. Help is available at www.nycourts.gov/housingnyc.
+        Your answer should state the legal reasons you should be allowed to stay or do not
+        owe the rent (your "defenses") and any claims you have against the landlord. You
+        will have to prove them in court. Information to help you answer is available at
+        www.nycourts.gov/housingnyc.
       </Numbered>
-      <Numbered n={5}>
+      {!holdover && (
+        <Numbered n={5}>
+          When you answer, you will be given a date to return to court, usually 3 to 8 days
+          later.
+        </Numbered>
+      )}
+      <Numbered n={holdover ? 5 : 6}>
         If your name is not on this Notice but you live in the home above, you have the
         right to come to court and tell the judge why you should be allowed to stay.
       </Numbered>
@@ -117,11 +146,12 @@ export function TenantNoticeSection({ data, caseType }) {
       <Text style={[styles.bold, { marginTop: 6 }]}>Available resources</Text>
       {isNyc ? (
         <View>
-          <Text style={styles.small}>• Free legal help (NYC Right to Counsel): 718-557-1379 · www.nycourts.gov/nyc-freelawyer</Text>
-          <Text style={styles.small}>• Free interpreter: tell the Clerk or call 646-386-5670</Text>
-          <Text style={styles.small}>• ADA accommodation: 646-386-5300 or 711 (TTY)</Text>
-          <Text style={styles.small}>• Rent help (HRA Infoline): 718-557-1399</Text>
-          <Text style={styles.small}>• A Help Center is available at the courthouse.</Text>
+          <Text style={styles.small}>• Free legal help (NYC Right to Counsel): 718-557-1379 · www.nycourts.gov/nyc-freelawyer. To hire a lawyer: NYC Bar Legal Referral Service 212-626-7373.</Text>
+          <Text style={styles.small}>• Language help / free interpreter: tell the Clerk or call 646-386-5670. Translations: www.nycourts.gov/housingnyc.</Text>
+          <Text style={styles.small}>• ADA accommodation: 646-386-5300 or 711 (TTY), or tell a Court Clerk.</Text>
+          <Text style={styles.small}>• Financial / rent help (HRA Infoline): 718-557-1399.</Text>
+          <Text style={styles.small}>• Help Center at the courthouse: speak to a Court Attorney or Volunteer Lawyer.</Text>
+          <Text style={styles.small}>• Online: www.nycourts.gov/housingnyc · www.lawhelpny.org</Text>
         </View>
       ) : (
         <Text style={styles.small}>
@@ -131,8 +161,10 @@ export function TenantNoticeSection({ data, caseType }) {
       )}
 
       <Text style={[styles.small, styles.para, { marginTop: 6 }]}>
-        If your case is not finished within 60 days, or you ask to postpone it again, the
-        court may order you to deposit rent (RPAPL § 745). After a judgment, you will
+        <Text style={styles.bold}>Postponements & rent deposits:</Text> You may ask to
+        postpone your case at least 14 days. If the case is not finished within 60 days, or
+        you ask to postpone again, the court may order you to deposit rent (RPAPL § 745).{' '}
+        <Text style={styles.bold}>After judgment:</Text> if a judgment is entered, you will
         receive a Notice of Eviction from a marshal/sheriff giving you at least 14 days to
         leave (RPAPL § 749(2)).
       </Text>

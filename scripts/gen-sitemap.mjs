@@ -6,7 +6,7 @@ import { GUIDES } from '../src/lib/guidesContent.js';
 
 const SITE = (process.env.SITE_URL || 'https://aesthetic-kitsune-d771d3.netlify.app').replace(/\/$/, '');
 
-const staticPaths = ['/', '/forms', '/guides', '/pricing', '/courts'];
+const staticPaths = ['/', '/forms', '/guides', '/efile', '/pricing', '/courts'];
 const formPaths = FORM_PAGES.map((p) => `/forms/${p.slug}`);
 const guidePaths = GUIDES.map((g) => `/guides/${g.slug}`);
 const all = [...staticPaths, ...formPaths, ...guidePaths];

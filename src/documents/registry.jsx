@@ -261,6 +261,7 @@ export const DOCUMENTS = {
     title: 'Nonpayment Petition + Notice of Petition',
     workflowType: 'nonpayment',
     statutes: ['RPAPL § 711', 'RPAPL § 735'],
+    courtFiled: true,
     Pdf: NonpaymentPetition,
     fields: [
       ...COURT_FIELDS,
@@ -294,15 +295,16 @@ export const DOCUMENTS = {
     derive: (v) => v,
     dateInfo: () => null,
     serviceInstructions: [
-      'File the Petition and Notice of Petition with the clerk to obtain an index ' +
-        'number and a court date.',
-      'After filing, the Notice of Petition and Petition must be served on the ' +
-        'respondent within the timeframe set by law, and an Affidavit of Service filed.',
-      'Bring your rent ledger and proof the 14-day demand was served.',
+      'File the Notice of Petition and Petition TOGETHER to start the case and get an ' +
+        'index number. In NYC you file online through NYSCEF — from home, no line.',
+      'Include your 14-day rent demand and its affidavit of service as exhibits.',
+      'After the court processes the filing, the papers must be served on the ' +
+        'respondent and an Affidavit of Service filed.',
     ],
     nextSteps:
-      'Once the court papers are served, generate an Affidavit of Service to file ' +
-      'with the court.',
+      'File online from home through NYSCEF (we walk you through it at /efile) — the ' +
+      'Notice of Petition and Petition are filed together. Then serve the papers and ' +
+      'generate an Affidavit of Service.',
   },
 
   affidavit_of_service: {
@@ -602,6 +604,7 @@ export const DOCUMENTS = {
     title: 'Holdover Petition + Notice of Petition',
     workflowType: 'holdover',
     statutes: ['RPAPL § 711', 'RPAPL § 735'],
+    courtFiled: true,
     Pdf: HoldoverPetition,
     fields: [
       ...COURT_FIELDS,
@@ -645,14 +648,16 @@ export const DOCUMENTS = {
     derive: (v) => v,
     dateInfo: () => null,
     serviceInstructions: [
-      'File the Holdover Petition and Notice of Petition with the clerk to get an ' +
-        'index number and court date.',
-      'Serve the papers on the respondent within the timeframe set by law and file an ' +
-        'Affidavit of Service.',
-      'Bring proof that the predicate notice was properly served.',
+      'File the Notice of Petition and Petition TOGETHER to start the case and get an ' +
+        'index number. In NYC you file online through NYSCEF — from home, no line.',
+      'Include your predicate notice (termination/cure) and its affidavit of service as exhibits.',
+      'After the court processes the filing and sets a return date, serve the papers and ' +
+        'file an Affidavit of Service.',
     ],
     nextSteps:
-      'Once the papers are served, generate an Affidavit of Service to file with the court.',
+      'File online from home through NYSCEF (we walk you through it at /efile) — the ' +
+      'Notice of Petition and Petition are filed together. Then serve the papers and ' +
+      'generate an Affidavit of Service.',
   },
 
   answer_holdover: {

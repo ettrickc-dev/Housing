@@ -17,6 +17,7 @@ import FormsIndex from './pages/FormsIndex.jsx';
 import FormLanding from './pages/FormLanding.jsx';
 import GuidesIndex from './pages/GuidesIndex.jsx';
 import GuideLanding from './pages/GuideLanding.jsx';
+import EFileGuide from './pages/EFileGuide.jsx';
 import IntakeWizard from './intake/IntakeWizard.jsx';
 
 // Code-split the document generator: it pulls in the heavy React-PDF renderer,
@@ -45,6 +46,9 @@ function Header() {
           </Link>
           <Link to="/guides" className="hidden text-navy hover:text-accent sm:inline">
             Guides
+          </Link>
+          <Link to="/efile" className="hidden font-medium text-accent hover:underline sm:inline">
+            File online
           </Link>
           {user ? (
             <>
@@ -133,6 +137,7 @@ export default function App() {
           <Route path="/forms/:slug" element={<FormLanding />} /> {/* public SEO */}
           <Route path="/guides" element={<GuidesIndex />} />       {/* public SEO */}
           <Route path="/guides/:slug" element={<GuideLanding />} /> {/* public SEO */}
+          <Route path="/efile" element={<EFileGuide />} />          {/* public SEO */}
           <Route path="/pricing" element={<Pricing />} />   {/* public */}
           <Route
             path="/account"

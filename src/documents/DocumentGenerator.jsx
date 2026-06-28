@@ -321,6 +321,19 @@ export default function DocumentGenerator() {
                   </div>
                 </>
               )}
+
+              {config.courtFiled && (
+                <div className="mt-4 rounded-md border border-accent bg-blue-50 p-3">
+                  <p className="text-sm font-semibold text-navy">📤 File this from home — skip the courthouse line</p>
+                  <p className="mt-0.5 text-xs text-gray-700">
+                    In NYC, you file the Notice of Petition and Petition together online
+                    through NYSCEF. We walk you through every step.
+                  </p>
+                  <Link to="/efile" className="mt-1 inline-block text-sm font-medium text-accent underline">
+                    See how to file online →
+                  </Link>
+                </div>
+              )}
             </div>
           ) : (
             <>
