@@ -21,6 +21,14 @@ export const handler = async (event) => {
     if (uErr || !userData?.user) return json(401, { error: 'Invalid session' });
     const user = userData.user;
 
+    // Authoritative price: admin override in app_pricing, else code default.
+    const { data: pr } = await supabase
+      .from('app_pricing')
+      .select('amount_cents')
+      .eq('key', `sub_${planDef.key}`)
+      .maybeSingle();
+    const unitAmount = pr?.amount_cents ?? planDef.amountCents;
+
     const appUrl = process.env.APP_URL || 'http://localhost:8888';
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -30,7 +38,7 @@ export const handler = async (event) => {
           price_data: {
             currency: 'usd',
             product_data: { name: `PlainRights Court — ${planDef.label} (unlimited)` },
-            unit_amount: planDef.amountCents,
+            unit_amount: unitAmount,
             recurring: { interval: planDef.interval },
           },
           quantity: 1,

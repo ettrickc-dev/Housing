@@ -157,6 +157,16 @@ as $$
   );
 $$;
 
+-- ---------------------------------------------------------------------
+-- app_pricing — operator-editable prices (per doc_type + subscription plans).
+-- Publicly readable (prices show on public pages); admin-writable only.
+-- ---------------------------------------------------------------------
+create table if not exists public.app_pricing (
+  key          text primary key,           -- doc_type, or 'sub_monthly' / 'sub_annual'
+  amount_cents integer not null check (amount_cents >= 0),
+  updated_at   timestamptz default now()
+);
+
 -- =====================================================================
 -- updated_at triggers
 -- =====================================================================
@@ -236,6 +246,14 @@ alter table public.workflows         enable row level security;
 alter table public.statutes          enable row level security;
 alter table public.law_review_log    enable row level security;
 alter table public.document_statutes enable row level security;
+alter table public.app_pricing       enable row level security;
+
+-- app_pricing: anyone may read prices; only admins may change them.
+drop policy if exists app_pricing_read on public.app_pricing;
+create policy app_pricing_read on public.app_pricing for select using (true);
+drop policy if exists app_pricing_admin on public.app_pricing;
+create policy app_pricing_admin on public.app_pricing
+  for all using (public.is_admin()) with check (public.is_admin());
 
 -- profiles: a user sees/edits only their own row
 drop policy if exists profiles_select_own on public.profiles;

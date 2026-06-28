@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://aesthetic-kitsune-d771d3.netlify.app/sitemap.xml

@@ -10,6 +10,7 @@ import { createCheckoutSession, createSubscriptionSession } from '../lib/api.js'
 import {
   priceForDoc, formatPrice, hasActiveSubscription, SUBSCRIPTION_PLANS, ANCHOR,
 } from '../lib/pricing.js';
+import { fetchPricing, resolveDocPrice } from '../lib/pricingDb.js';
 import { fmtDate } from '../pdf/pdfTheme.js';
 import Disclaimer from '../components/Disclaimer.jsx';
 
@@ -29,6 +30,7 @@ export default function DocumentGenerator() {
   const [error, setError] = useState('');
   const [unlocking, setUnlocking] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [price, setPrice] = useState(priceForDoc(docType));
 
   // Load profile -> seed default field values; fetch law review date.
   // NOTE: depend on the stable user.id string, NOT the user object. A Supabase
@@ -57,6 +59,7 @@ export default function DocumentGenerator() {
       setPreviewData(config.derive(defaults));
       setLawReviewDate(lrd);
       setSubscribed(hasActiveSubscription(p));
+      fetchPricing().then((ov) => { if (alive) setPrice(resolveDocPrice(ov, docType)); });
     })();
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -179,7 +182,6 @@ export default function DocumentGenerator() {
   }
 
   const dateInfo = config.dateInfo(values);
-  const price = priceForDoc(docType);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">

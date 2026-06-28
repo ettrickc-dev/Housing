@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
-import {
-  SUBSCRIPTION_PLANS, formatPrice, annualSavingsCents, ANCHOR,
-} from '../lib/pricing.js';
+import { SUBSCRIPTION_PLANS, formatPrice, ANCHOR } from '../lib/pricing.js';
+import { fetchPricing, resolveSubPrice } from '../lib/pricingDb.js';
 import { createSubscriptionSession } from '../lib/api.js';
 import Disclaimer from '../components/Disclaimer.jsx';
 
@@ -12,6 +11,13 @@ export default function Pricing() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
+  const [overrides, setOverrides] = useState(null);
+
+  useEffect(() => { fetchPricing().then(setOverrides); }, []);
+
+  const monthlyCents = resolveSubPrice(overrides, 'monthly');
+  const annualCents = resolveSubPrice(overrides, 'annual');
+  const savings = monthlyCents * 12 - annualCents;
 
   async function subscribe(planKey) {
     if (!user) {
@@ -29,8 +35,6 @@ export default function Pricing() {
       setBusy('');
     }
   }
-
-  const savings = annualSavingsCents();
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
@@ -51,7 +55,7 @@ export default function Pricing() {
           </div>
           <h2 className="mt-3 font-semibold text-navy">Annual — unlimited</h2>
           <p className="mt-1 text-3xl font-bold text-navy">
-            {formatPrice(SUBSCRIPTION_PLANS.annual.amountCents)}
+            {formatPrice(annualCents)}
             <span className="text-sm font-normal text-gray-500">/year</span>
           </p>
           <p className="mt-1 text-sm font-medium text-green-700">
@@ -73,7 +77,7 @@ export default function Pricing() {
         <div className="order-2 rounded-2xl border border-gray-200 bg-white p-6 sm:order-1">
           <h2 className="font-semibold text-navy">Monthly — unlimited</h2>
           <p className="mt-1 text-3xl font-bold text-navy">
-            {formatPrice(SUBSCRIPTION_PLANS.monthly.amountCents)}
+            {formatPrice(monthlyCents)}
             <span className="text-sm font-normal text-gray-500">/month</span>
           </p>
           <p className="mt-1 text-sm text-gray-500">Cancel anytime.</p>

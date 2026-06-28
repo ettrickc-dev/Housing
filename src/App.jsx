@@ -8,18 +8,21 @@ import AdminRoute from './components/AdminRoute.jsx';
 import Login from './pages/Login.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Profile from './pages/Profile.jsx';
-import AdminDashboard from './pages/AdminDashboard.jsx';
 import LawUpdates from './pages/LawUpdates.jsx';
 import Courts from './pages/Courts.jsx';
 import Pricing from './pages/Pricing.jsx';
 import Account from './pages/Account.jsx';
 import Landing from './pages/Landing.jsx';
+import FormsIndex from './pages/FormsIndex.jsx';
+import FormLanding from './pages/FormLanding.jsx';
 import IntakeWizard from './intake/IntakeWizard.jsx';
 
 // Code-split the document generator: it pulls in the heavy React-PDF renderer,
 // which should only load when a user actually opens a document.
 const DocumentGenerator = lazy(() => import('./documents/DocumentGenerator.jsx'));
 const DocumentPaid = lazy(() => import('./documents/DocumentPaid.jsx'));
+// Lazy so the admin's registry/React-PDF imports stay out of the main bundle.
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard.jsx'));
 
 function Header() {
   const { user, isAdmin, signOut } = useAuth();
@@ -35,6 +38,9 @@ function Header() {
           {APP_NAME}
         </Link>
         <nav className="flex items-center gap-4 text-sm">
+          <Link to="/forms" className="hidden text-navy hover:text-accent sm:inline">
+            Forms
+          </Link>
           {user ? (
             <>
               <Link to="/dashboard" className="text-navy hover:text-accent">
@@ -118,6 +124,8 @@ export default function App() {
             }
           />
           <Route path="/courts" element={<Courts />} />          {/* public */}
+          <Route path="/forms" element={<FormsIndex />} />       {/* public SEO */}
+          <Route path="/forms/:slug" element={<FormLanding />} /> {/* public SEO */}
           <Route path="/pricing" element={<Pricing />} />   {/* public */}
           <Route
             path="/account"
@@ -132,7 +140,9 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <AdminRoute>
-                  <AdminDashboard />
+                  <Suspense fallback={<p className="mx-auto max-w-prose px-4 py-16 text-gray-500">Loading…</p>}>
+                    <AdminDashboard />
+                  </Suspense>
                 </AdminRoute>
               </ProtectedRoute>
             }

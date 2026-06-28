@@ -4,6 +4,9 @@ import {
   getStatutes, markVerified, setFlag, saveNotes,
   getLawLog, getNyscefProcedures, saveNyscefProcedures,
 } from '../lib/admin.js';
+import { fetchPricing, setPriceCents } from '../lib/pricingDb.js';
+import { DOCUMENTS } from '../documents/registry.jsx';
+import { DOC_PRICES_CENTS, DEFAULT_PRICE_CENTS, SUBSCRIPTION_PLANS } from '../lib/pricing.js';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -82,6 +85,16 @@ export default function AdminDashboard() {
         </button>
       </section>
 
+      {/* Pricing */}
+      <section className="mt-10">
+        <h2 className="text-lg font-semibold text-navy">Pricing</h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Set what each document and subscription costs. Changes take effect immediately —
+          no redeploy needed.
+        </p>
+        <PricingAdmin />
+      </section>
+
       {/* Law update log */}
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-navy">Law update log</h2>
@@ -104,6 +117,73 @@ export default function AdminDashboard() {
         )}
       </section>
     </main>
+  );
+}
+
+function PricingAdmin() {
+  const [rows, setRows] = useState(null);
+  const [savedKey, setSavedKey] = useState('');
+  const [err, setErr] = useState('');
+
+  async function load() {
+    const ov = await fetchPricing();
+    const docs = Object.entries(DOCUMENTS).map(([key, cfg]) => ({
+      key, label: cfg.title,
+      cents: ov[key] ?? DOC_PRICES_CENTS[key] ?? DEFAULT_PRICE_CENTS,
+    }));
+    setRows([
+      ...docs,
+      { key: 'sub_monthly', label: 'Subscription — Monthly', cents: ov.sub_monthly ?? SUBSCRIPTION_PLANS.monthly.amountCents },
+      { key: 'sub_annual', label: 'Subscription — Annual', cents: ov.sub_annual ?? SUBSCRIPTION_PLANS.annual.amountCents },
+    ]);
+  }
+  useEffect(() => { load(); }, []);
+
+  async function save(key, dollars) {
+    setErr('');
+    const cents = Math.round(parseFloat(dollars) * 100);
+    if (Number.isNaN(cents) || cents < 0) { setErr('Enter a valid price.'); return; }
+    try {
+      await setPriceCents(key, cents);
+      setSavedKey(key);
+      setTimeout(() => setSavedKey(''), 1500);
+      load();
+    } catch (e) { setErr(e.message); }
+  }
+
+  if (!rows) return <p className="mt-2 text-sm text-gray-500">Loading…</p>;
+  return (
+    <div className="mt-3 space-y-2">
+      {err && <p className="text-sm text-red-600">{err}</p>}
+      {rows.map((r) => (
+        <PriceRow key={r.key} row={r} onSave={save} saved={savedKey === r.key} />
+      ))}
+    </div>
+  );
+}
+
+function PriceRow({ row, onSave, saved }) {
+  const [val, setVal] = useState((row.cents / 100).toFixed(2));
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-md border border-gray-200 p-2 text-sm">
+      <span className="text-navy">{row.label}</span>
+      <div className="flex items-center gap-2">
+        <span className="text-gray-400">$</span>
+        <input
+          type="number" step="0.01" min="0"
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          className="w-24 rounded border border-gray-300 px-2 py-1"
+        />
+        <button
+          onClick={() => onSave(row.key, val)}
+          className="rounded bg-accent px-3 py-1 text-xs font-medium text-white hover:bg-blue-700"
+        >
+          Save
+        </button>
+        {saved && <span className="text-xs text-green-700">✓</span>}
+      </div>
+    </div>
   );
 }
 

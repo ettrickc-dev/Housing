@@ -29,7 +29,13 @@ export const handler = async (event) => {
     if (dErr || !doc || doc.user_id !== userId) return json(404, { error: 'Document not found' });
     if (doc.paid) return json(200, { alreadyPaid: true });
 
-    const amount = priceForDoc(doc.doc_type);
+    // Authoritative price: admin override in app_pricing, else code default.
+    const { data: pr } = await supabase
+      .from('app_pricing')
+      .select('amount_cents')
+      .eq('key', doc.doc_type)
+      .maybeSingle();
+    const amount = pr?.amount_cents ?? priceForDoc(doc.doc_type);
     const appUrl = process.env.APP_URL || 'http://localhost:8888';
 
     const session = await stripe.checkout.sessions.create({
