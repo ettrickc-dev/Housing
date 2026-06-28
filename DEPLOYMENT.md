@@ -94,8 +94,10 @@ Site URL and Redirect URLs (so email links / OAuth return correctly).
 - [ ] Switch Stripe to **live keys** (`pk_live`/`sk_live` + a live-mode webhook secret).
 - [ ] Delete test users (`ettrickc+prtest1/2/3`) and test documents.
 - [ ] Verify a real (small) live purchase end-to-end, then refund it.
-- [ ] Confirm the daily reminder + Jan-1 admin functions appear under Netlify →
-      Functions (scheduled). They run automatically once deployed.
+- [ ] Confirm the scheduled functions appear under Netlify → Functions and run
+      automatically: `notice-reminders` (daily), `abandoned-docs` (daily — recovers
+      unfinished documents), `admin-annual-review` (Jan 1). All need
+      `SUPABASE_SERVICE_ROLE_KEY` + `RESEND_API_KEY` in env.
 - [ ] Review pricing in `src/lib/pricing.js`.
 
 ## Known gaps / future work

@@ -1,13 +1,11 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../lib/AuthContext.jsx';
 import { LEGAL_DISCLAIMER } from '../lib/constants.js';
 import { ANCHOR } from '../lib/pricing.js';
 
 // Professional, confidence-building landing page. Authoritative tone WITHOUT
 // implying any government/court affiliation (we are an independent self-help service).
 export default function Landing() {
-  const { user } = useAuth();
-  const go = user ? '/start' : '/login';
+  const go = '/start'; // public — build & preview before signing up
 
   return (
     <div>

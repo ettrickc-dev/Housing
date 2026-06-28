@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../lib/AuthContext.jsx';
 import {
   SUBSCRIPTION_PLANS, formatPrice, annualSavingsCents, ANCHOR,
 } from '../lib/pricing.js';
@@ -7,10 +8,17 @@ import { createSubscriptionSession } from '../lib/api.js';
 import Disclaimer from '../components/Disclaimer.jsx';
 
 export default function Pricing() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
 
   async function subscribe(planKey) {
+    if (!user) {
+      // Need an account to attach the subscription to.
+      navigate('/login', { state: { from: '/pricing' } });
+      return;
+    }
     setBusy(planKey);
     setError('');
     try {

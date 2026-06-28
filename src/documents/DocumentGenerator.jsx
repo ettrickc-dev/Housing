@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { PDFViewer, pdf } from '@react-pdf/renderer';
 import { useAuth } from '../lib/AuthContext.jsx';
 import { getProfile } from '../lib/profile.js';
+import { getLocalIntake, savePendingDraft, takePendingDraft } from '../lib/draft.js';
 import { getDocConfig, addDays } from './registry.jsx';
 import { getLawReviewDate, saveDocument, upsertWorkflow } from '../lib/documents.js';
 import { createCheckoutSession, createSubscriptionSession } from '../lib/api.js';
@@ -17,6 +18,7 @@ const TONE_ICON = { must: '⏳', cannot: '🚫', info: '✅', warn: '⚠️' };
 export default function DocumentGenerator() {
   const { docType } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const config = getDocConfig(docType);
 
   const [values, setValues] = useState(null);
@@ -34,18 +36,23 @@ export default function DocumentGenerator() {
   // on the object would re-run this effect and wipe a just-saved document's UI.
   const userId = user?.id;
   useEffect(() => {
-    if (!config || !userId) return;
+    if (!config) return;
     let alive = true;
     // Reset transient state when switching between documents.
     setSaved(null);
     setError('');
     (async () => {
-      const [p, lrd] = await Promise.all([
-        getProfile(userId).catch(() => ({})),
-        getLawReviewDate().catch(() => null),
-      ]);
+      // Signed-in: pull the profile. Anonymous: seed from local intake answers
+      // so the form still pre-fills role/location-derived bits.
+      const p = userId
+        ? await getProfile(userId).catch(() => ({}))
+        : getLocalIntake();
+      const lrd = await getLawReviewDate().catch(() => null);
       if (!alive) return;
-      const defaults = config.defaults(p || {});
+      let defaults = config.defaults(p || {});
+      // Restore a document the user was building before they signed up.
+      const pending = takePendingDraft(docType);
+      if (pending) defaults = { ...defaults, ...pending };
       setValues(defaults);
       setPreviewData(config.derive(defaults));
       setLawReviewDate(lrd);
@@ -101,6 +108,13 @@ export default function DocumentGenerator() {
   }
 
   async function handleGenerate() {
+    // Build-before-signup: anonymous users complete the form, then create an
+    // account to download. We stash their answers so nothing is lost.
+    if (!user) {
+      savePendingDraft(docType, values);
+      navigate('/login', { state: { from: `/document/${docType}` } });
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -313,10 +327,16 @@ export default function DocumentGenerator() {
                 disabled={saving}
                 className="mt-4 w-full rounded-md bg-accent px-5 py-3 font-medium text-white hover:bg-blue-700 disabled:opacity-60"
               >
-                {saving ? 'Generating…' : 'Generate & save document'}
+                {saving
+                  ? 'Generating…'
+                  : user
+                  ? 'Generate & save document'
+                  : 'Create a free account to download'}
               </button>
               <p className="mt-2 text-center text-xs text-gray-500">
-                {subscribed
+                {!user
+                  ? "It's free to build and preview. Create a free account to download — your answers are saved."
+                  : subscribed
                   ? 'Included in your subscription — generates the filing-ready PDF with no watermark.'
                   : `Free to preview. Unlock the filing-ready PDF for ${formatPrice(price)} after generating.`}
               </p>

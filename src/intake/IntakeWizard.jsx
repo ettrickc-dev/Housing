@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
 import { getProfile, upsertProfile } from '../lib/profile.js';
+import { getLocalIntake, setLocalIntake } from '../lib/draft.js';
 import { ROLES, LOCATIONS, HOUSING_TYPES, NEEDS } from './config.js';
 import GoodCauseChecker from './GoodCauseChecker.jsx';
 
@@ -17,20 +18,23 @@ export default function IntakeWizard() {
   const [showChecker, setShowChecker] = useState(false);
   const [saveError, setSaveError] = useState('');
 
-  // Resume where the user left off based on saved profile answers.
+  // Resume where the user left off. Signed-in: from their profile. Anonymous:
+  // from localStorage (so people can use the wizard before creating an account).
+  const userId = user?.id;
   useEffect(() => {
     let alive = true;
     (async () => {
-      const p = await getProfile(user.id).catch(() => null);
+      const src = userId
+        ? await getProfile(userId).catch(() => null)
+        : getLocalIntake();
       if (!alive) return;
-      if (p) {
+      if (src) {
         const a = {
-          role: p.role || null,
-          location_type: p.location_type || null,
-          housing_type: p.housing_type || null,
+          role: src.role || null,
+          location_type: src.location_type || null,
+          housing_type: src.housing_type || null,
         };
         setAnswers(a);
-        // jump to the first unanswered step
         if (!a.role) setStep(0);
         else if (!a.location_type) setStep(1);
         else if (!a.housing_type) setStep(2);
@@ -39,17 +43,21 @@ export default function IntakeWizard() {
       setLoading(false);
     })();
     return () => { alive = false; };
-  }, [user]);
+  }, [userId]);
 
   async function choose(field, value, nextStep) {
     const next = { ...answers, [field]: value };
     setAnswers(next);
     setSaveError('');
-    try {
-      await upsertProfile(user.id, { [field]: value });
-    } catch (err) {
-      // Persistence may fail without live Supabase; let the user continue locally.
-      setSaveError('Could not save your selection to your profile yet. You can continue.');
+    if (userId) {
+      try {
+        await upsertProfile(userId, { [field]: value });
+      } catch (err) {
+        setSaveError('Could not save your selection yet. You can continue.');
+      }
+    } else {
+      // Anonymous: keep answers locally until they sign up.
+      setLocalIntake(next);
     }
     if (typeof nextStep === 'number') setStep(nextStep);
   }

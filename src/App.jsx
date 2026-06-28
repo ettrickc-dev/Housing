@@ -118,14 +118,7 @@ export default function App() {
             }
           />
           <Route path="/courts" element={<Courts />} />          {/* public */}
-          <Route
-            path="/pricing"
-            element={
-              <ProtectedRoute>
-                <Pricing />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/pricing" element={<Pricing />} />   {/* public */}
           <Route
             path="/account"
             element={
@@ -144,28 +137,20 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/start"
-            element={
-              <ProtectedRoute>
-                <IntakeWizard />
-              </ProtectedRoute>
-            }
-          />
+          {/* Public funnel — build & preview before signing up */}
+          <Route path="/start" element={<IntakeWizard />} />
           <Route
             path="/document/:docType"
             element={
-              <ProtectedRoute>
-                <Suspense
-                  fallback={
-                    <p className="mx-auto max-w-prose px-4 py-16 text-gray-500">
-                      Loading document builder…
-                    </p>
-                  }
-                >
-                  <DocumentGenerator />
-                </Suspense>
-              </ProtectedRoute>
+              <Suspense
+                fallback={
+                  <p className="mx-auto max-w-prose px-4 py-16 text-gray-500">
+                    Loading document builder…
+                  </p>
+                }
+              >
+                <DocumentGenerator />
+              </Suspense>
             }
           />
           <Route
