@@ -97,6 +97,16 @@ export async function getFlaggedCitations(citations) {
   return (data || []).map((s) => s.citation);
 }
 
+// ---- Monitored law sources (auto law-watch) ----------------------------
+export async function getLawSources() {
+  const { data, error } = await supabase
+    .from('law_sources')
+    .select('*')
+    .order('label', { ascending: true });
+  if (error) return [];
+  return data || [];
+}
+
 // ---- NYSCEF Procedures (stored as a dedicated statutes row) -------------
 export async function getNyscefProcedures() {
   const { data } = await supabase

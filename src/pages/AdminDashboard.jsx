@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/AuthContext.jsx';
 import {
   getStatutes, markVerified, setFlag, saveNotes,
-  getLawLog, getNyscefProcedures, saveNyscefProcedures,
+  getLawLog, getNyscefProcedures, saveNyscefProcedures, getLawSources,
 } from '../lib/admin.js';
 import { fetchPricing, setPriceCents } from '../lib/pricingDb.js';
 import { DOCUMENTS } from '../documents/registry.jsx';
@@ -14,15 +14,19 @@ export default function AdminDashboard() {
 
   const [statutes, setStatutes] = useState([]);
   const [log, setLog] = useState([]);
+  const [sources, setSources] = useState([]);
   const [nyscef, setNyscef] = useState('');
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
 
   async function reload() {
-    const [s, l, n] = await Promise.all([getStatutes(), getLawLog(), getNyscefProcedures()]);
+    const [s, l, n, src] = await Promise.all([
+      getStatutes(), getLawLog(), getNyscefProcedures(), getLawSources(),
+    ]);
     setStatutes(s);
     setLog(l);
     setNyscef(n?.notes || '');
+    setSources(src);
     setLoading(false);
   }
   useEffect(() => { reload().catch((e) => { setErr(e.message); setLoading(false); }); }, []);
@@ -93,6 +97,34 @@ export default function AdminDashboard() {
           no redeploy needed.
         </p>
         <PricingAdmin />
+      </section>
+
+      {/* Automatic law monitoring */}
+      <section className="mt-10">
+        <h2 className="text-lg font-semibold text-navy">Automatic law monitoring</h2>
+        <p className="mt-1 text-sm text-gray-600">
+          These official sources are checked automatically every week. If one changes,
+          the related statute is flagged above and you get an email to review. (Detection
+          is automatic; you approve the actual document changes.)
+        </p>
+        {sources.length === 0 ? (
+          <p className="mt-2 text-sm text-gray-500">
+            No sources yet — run the law_sources migration to enable monitoring.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2 text-sm">
+            {sources.map((s) => (
+              <li key={s.id} className="rounded-md border border-gray-200 px-3 py-2">
+                <span className="font-medium text-navy">{s.label}</span>
+                {s.citation ? <span className="ml-2 text-xs text-gray-400">{s.citation}</span> : null}
+                <div className="text-xs text-gray-500">
+                  {s.last_checked ? `Checked ${new Date(s.last_checked).toLocaleDateString()}` : 'Not checked yet'}
+                  {s.last_changed ? ` · Last changed ${new Date(s.last_changed).toLocaleDateString()}` : ''}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {/* Law update log */}

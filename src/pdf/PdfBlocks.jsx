@@ -173,14 +173,14 @@ export function TenantNoticeSection({ data, caseType }) {
 }
 
 // ---- Verification (sworn) ---------------------------------------------------
-export function Verification({ county, signerName, role = 'Petitioner' }) {
+export function Verification({ county, signerName, role = 'Petitioner', docWord = 'petition' }) {
   return (
     <View style={styles.juratBox}>
       <Text style={styles.bold}>VERIFICATION</Text>
       <Text style={[styles.small, { marginTop: 4 }]}>STATE OF NEW YORK, COUNTY OF {county} ss.:</Text>
       <Text style={[styles.small, { marginTop: 4 }]}>
         The undersigned, being duly sworn, deposes and says that deponent is the {role}{' '}
-        in this proceeding; that deponent has read the foregoing petition and knows the
+        in this proceeding; that deponent has read the foregoing {docWord} and knows the
         contents thereof; and that the same is true to deponent's own knowledge, except as
         to matters stated upon information and belief, and as to those matters deponent
         believes them to be true.

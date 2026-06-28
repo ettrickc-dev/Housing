@@ -167,6 +167,21 @@ create table if not exists public.app_pricing (
   updated_at   timestamptz default now()
 );
 
+-- ---------------------------------------------------------------------
+-- law_sources — official NY law pages monitored by the law-watch function.
+-- On content change, the related statute is flagged and the admin is emailed.
+-- ---------------------------------------------------------------------
+create table if not exists public.law_sources (
+  id           uuid primary key default gen_random_uuid(),
+  label        text not null,
+  url          text not null,
+  citation     text,            -- related statute citation to flag on change
+  last_hash    text,
+  last_checked timestamptz,
+  last_changed timestamptz,
+  created_at   timestamptz default now()
+);
+
 -- =====================================================================
 -- updated_at triggers
 -- =====================================================================
@@ -247,12 +262,21 @@ alter table public.statutes          enable row level security;
 alter table public.law_review_log    enable row level security;
 alter table public.document_statutes enable row level security;
 alter table public.app_pricing       enable row level security;
+alter table public.law_sources       enable row level security;
 
 -- app_pricing: anyone may read prices; only admins may change them.
 drop policy if exists app_pricing_read on public.app_pricing;
 create policy app_pricing_read on public.app_pricing for select using (true);
 drop policy if exists app_pricing_admin on public.app_pricing;
 create policy app_pricing_admin on public.app_pricing
+  for all using (public.is_admin()) with check (public.is_admin());
+
+-- law_sources: authenticated users may read; only admins manage. The law-watch
+-- function writes with the service-role key (bypasses RLS).
+drop policy if exists law_sources_read on public.law_sources;
+create policy law_sources_read on public.law_sources for select using (auth.role() = 'authenticated');
+drop policy if exists law_sources_admin on public.law_sources;
+create policy law_sources_admin on public.law_sources
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- profiles: a user sees/edits only their own row
