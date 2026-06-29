@@ -14,6 +14,8 @@ import HpAction from '../pdf/HpAction.jsx';
 import IllegalLockout from '../pdf/IllegalLockout.jsx';
 import MotionDefaultJudgment from '../pdf/MotionDefaultJudgment.jsx';
 import StipulationSettlement from '../pdf/StipulationSettlement.jsx';
+import MarshalRequisition from '../pdf/MarshalRequisition.jsx';
+import SatisfactionOfJudgment from '../pdf/SatisfactionOfJudgment.jsx';
 import { joinAddress, fmtDate } from '../pdf/pdfTheme.js';
 
 // Reusable example/help snippets.
@@ -973,6 +975,83 @@ export const DOCUMENTS = {
       'Each side should keep a signed, so-ordered copy.',
     ],
     nextSteps: 'Both parties sign and present it to the judge to be so-ordered on your court date.',
+  },
+
+  marshal_requisition: {
+    title: 'Requisition to Marshal / Sheriff',
+    workflowType: 'landlord_postjudgment',
+    statutes: ['RPAPL § 749'],
+    Pdf: MarshalRequisition,
+    fields: [
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
+      { key: 'petitionerAddress', label: 'Your address' },
+      { key: 'petitionerPhone', label: 'Your phone number' },
+      { key: 'respondentNames', label: 'Respondent (tenant) name(s)' },
+      { key: 'premisesAddress', label: 'Premises address' },
+      { key: 'apartment', label: 'Apartment / unit', placeholder: 'e.g., 3R' },
+      { key: 'officerType', label: 'Who will enforce it?', type: 'select',
+        options: ['City Marshal', 'Sheriff'] },
+      { key: 'officerName', label: 'Officer name (if known)', placeholder: 'Leave blank if unknown' },
+      { key: 'judgmentDate', label: 'Date judgment of possession was entered', type: 'date' },
+      { key: 'warrantDate', label: 'Date the warrant of eviction issued', type: 'date' },
+      { key: 'reqDate', label: 'Date you are signing', type: 'date' },
+    ],
+    defaults: (p) => {
+      const c = deriveCourt(p);
+      return { courtName: c.courtName, county: c.county, indexNumber: p.court_index_number || '',
+        petitionerName: p.landlord_name || p.full_name || '', petitionerAddress: fullAddress(p),
+        petitionerPhone: p.phone || '', respondentNames: '', premisesAddress: fullAddress(p),
+        apartment: p.unit_number || '', officerType: p.location_type === 'nyc' ? 'City Marshal' : 'Sheriff',
+        officerName: '', judgmentDate: '', warrantDate: '', reqDate: '' };
+    },
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'In NYC, give the original warrant and this requisition to a licensed City Marshal; elsewhere, the Sheriff.',
+      'The officer serves a Notice of Eviction (at least 14 days) before executing — RPAPL § 749(2).',
+      'Never remove a tenant or change locks yourself — only the officer may execute the warrant.',
+    ],
+    nextSteps: 'Deliver the warrant + this requisition to the marshal/sheriff; they schedule and execute the eviction.',
+  },
+
+  satisfaction_judgment: {
+    title: 'Satisfaction of Judgment',
+    workflowType: 'landlord_postjudgment',
+    statutes: ['CPLR § 5020', 'CPLR § 5021'],
+    Pdf: SatisfactionOfJudgment,
+    fields: [
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number' },
+      { key: 'creditorName', label: 'Judgment creditor (who was owed the money)' },
+      { key: 'creditorAddress', label: 'Judgment creditor address' },
+      { key: 'debtorName', label: 'Judgment debtor (who owed the money)' },
+      { key: 'premisesAddress', label: 'Premises address' },
+      { key: 'judgmentDate', label: 'Date the money judgment was entered', type: 'date' },
+      { key: 'amount', label: 'Judgment amount ($)', type: 'number', placeholder: '0' },
+      { key: 'satisfactionType', label: 'Full or partial payment?', type: 'select',
+        options: [{ value: 'full', label: 'Fully paid (full satisfaction)' }, { value: 'partial', label: 'Partly paid (partial satisfaction)' }] },
+      { key: 'paidAmount', label: 'Amount paid ($) — partial only', type: 'number', placeholder: '0' },
+      { key: 'signerName', label: 'Who is signing' },
+      { key: 'signerRole', label: 'Signing as the', type: 'select',
+        options: ['Judgment Creditor', 'Attorney for Judgment Creditor'] },
+      { key: 'satDate', label: 'Date you are signing', type: 'date' },
+    ],
+    defaults: (p) => {
+      const c = deriveCourt(p);
+      return { courtName: c.courtName, county: c.county, indexNumber: p.court_index_number || '',
+        creditorName: p.landlord_name || p.full_name || '', creditorAddress: fullAddress(p),
+        debtorName: '', premisesAddress: fullAddress(p), judgmentDate: '', amount: '',
+        satisfactionType: 'full', paidAmount: '',
+        signerName: p.landlord_name || p.full_name || '', signerRole: 'Judgment Creditor', satDate: '' };
+    },
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'Sign in front of a notary (the acknowledgment must be completed).',
+      'File the original with the clerk of the court that entered the judgment so it is marked satisfied.',
+      'Give the judgment debtor a copy for their records.',
+    ],
+    nextSteps: 'Notarize and file with the court clerk so the judgment is marked satisfied of record.',
   },
 };
 

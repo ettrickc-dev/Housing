@@ -85,6 +85,15 @@ export const NEEDS = {
         { key: 'stipulation_settlement', label: 'Put a settlement agreement in writing (stipulation)', ready: true },
       ],
     },
+    {
+      plainTitle: 'After you win: enforce or close out the judgment',
+      group: 'Post-judgment',
+      help: 'Once you have a judgment and warrant: have the marshal/sheriff carry out the eviction, or mark a paid money judgment satisfied.',
+      items: [
+        { key: 'marshal_requisition', label: 'Tell the marshal/sheriff to carry out the eviction', ready: true },
+        { key: 'satisfaction_judgment', label: 'Mark a paid judgment as satisfied', ready: true },
+      ],
+    },
   ],
   tenant: [
     {

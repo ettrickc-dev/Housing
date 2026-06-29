@@ -176,6 +176,25 @@ export const BIG_PICTURE = {
     steps: ['Both sides agree on terms', 'Put the terms in this stipulation', 'Both parties sign it', 'The judge so-orders it on your court date'],
     current: 1,
   },
+  marshal_requisition: {
+    flow: 'Carrying out the eviction after you win (landlord)',
+    why:
+      'After you have a judgment of possession and a warrant of eviction, you cannot remove ' +
+      'the tenant yourself. You give the warrant to a city marshal (NYC) or the sheriff, who ' +
+      'serves a 14-day Notice of Eviction and then carries it out. Right now you are preparing ' +
+      'the requisition that instructs the officer.',
+    steps: ['You have a judgment + warrant of eviction', 'Give the warrant + this requisition to the marshal/sheriff', 'The officer serves a 14-day Notice of Eviction', 'The officer carries out the eviction'],
+    current: 1,
+  },
+  satisfaction_judgment: {
+    flow: 'Closing out a paid money judgment (landlord)',
+    why:
+      'When the tenant pays a money judgment, you must file a Satisfaction of Judgment so the ' +
+      'court marks it paid — it’s required, and it clears the debtor’s record. Right now you ' +
+      'are preparing that document; you sign it before a notary and file it with the court.',
+    steps: ['A money judgment was entered and then paid', 'Fill out this Satisfaction of Judgment', 'Sign it before a notary', 'File it with the court clerk'],
+    current: 1,
+  },
   hp_action_repairs: {
     flow: 'Making your landlord do repairs (HP case, tenant)',
     why:
@@ -298,6 +317,18 @@ export const WHAT_YOU_NEED = {
     'Your index / L&T number and the court',
     'What you both agreed: a payment amount + date, or a move-out date',
     'Any other terms (repairs, waived fees, withdrawn claims)',
+  ],
+  marshal_requisition: [
+    'Your index / L&T number and the court',
+    'The dates the judgment and the warrant of eviction were entered',
+    'The premises address and apartment number',
+    'Your contact phone number for the officer',
+  ],
+  satisfaction_judgment: [
+    'Your index / L&T number and the court',
+    'The date the money judgment was entered and the amount',
+    'Whether it was paid in full or in part (and how much)',
+    'The judgment debtor’s name',
   ],
   hp_action_repairs: [
     'The building address and your apartment number',

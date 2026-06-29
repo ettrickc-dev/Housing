@@ -284,10 +284,11 @@ const READY_DOCS = [
   'Jury demand & fee-waiver (poor person) application',
   'HP repairs case & illegal-lockout (restoration) petitions',
   'Motion for default judgment & stipulation of settlement',
+  'Post-judgment: marshal/sheriff requisition & satisfaction of judgment',
 ];
 const SOON_DOCS = [
   'DHCR filings (registration, lease renewal)',
-  'Post-judgment (marshal instructions, satisfaction)',
+  'Rent-stabilized lease renewal & non-renewal notices',
 ];
 
 const TRUST = [
