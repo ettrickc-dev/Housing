@@ -10,6 +10,8 @@ import AnswerHoldover from '../pdf/AnswerHoldover.jsx';
 import JuryDemand from '../pdf/JuryDemand.jsx';
 import PoorPersonApplication from '../pdf/PoorPersonApplication.jsx';
 import OscStayWarrant from '../pdf/OscStayWarrant.jsx';
+import HpAction from '../pdf/HpAction.jsx';
+import IllegalLockout from '../pdf/IllegalLockout.jsx';
 import { joinAddress, fmtDate } from '../pdf/pdfTheme.js';
 
 // Reusable example/help snippets.
@@ -816,6 +818,78 @@ export const DOCUMENTS = {
       'Sign the affidavit in front of a notary. Ask the clerk about an immediate stay.',
     ],
     nextSteps: 'Take this to the courthouse right away; the judge sets the hearing and how it must be served.',
+  },
+
+  hp_action_repairs: {
+    title: 'HP Action (Repairs)',
+    workflowType: 'tenant_offense',
+    statutes: ['NYC Housing Maintenance Code', 'Multiple Dwelling Law', 'RPL § 235-b'],
+    Pdf: HpAction,
+    fields: [
+      ...COURT_FIELDS,
+      { key: 'petitionerName', label: 'Your name (the tenant/petitioner)' },
+      { key: 'petitionerAddress', label: 'Your mailing address' },
+      { key: 'respondentNames', label: 'Owner / landlord name (respondent)' },
+      { key: 'premisesAddress', label: 'Building address' },
+      { key: 'apartment', label: 'Apartment / unit', placeholder: 'e.g., 4B' },
+      { key: 'managingAgent', label: 'Managing agent (if any)', placeholder: 'Leave blank if none' },
+      { key: 'conditions', label: 'Conditions that need repair (one per line)', type: 'textarea',
+        example: 'Examples (one per line): "No heat or hot water" · "Leaking ceiling in bathroom" · "Broken front-door lock" · "Mold in bedroom" · "Roach/mice infestation"' },
+      { key: 'hazardous', label: 'Are any conditions immediately hazardous?', type: 'select',
+        options: [{ value: 'no', label: 'No' }, { value: 'yes', label: 'Yes — emergency' }] },
+      { key: 'accessDates', label: 'Dates/times you can give access for repairs', placeholder: 'e.g., weekday mornings' },
+      { key: 'petitionDate', label: 'Date you are signing', type: 'date' },
+    ],
+    defaults: (p) => {
+      const c = deriveCourt(p);
+      return { courtName: c.courtName, county: c.county, petitionerName: p.full_name || '',
+        petitionerAddress: fullAddress(p), respondentNames: p.landlord_name || '',
+        premisesAddress: fullAddress(p), apartment: p.unit_number || '', managingAgent: '',
+        conditions: '', hazardous: 'no', accessDates: '', petitionDate: '' };
+    },
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'File the petition + Order to Show Cause at your borough Housing Court (HP Part) clerk.',
+      'There is a small fee (often a few dollars) — ask the clerk, or file a fee-waiver application.',
+      'HPD will be directed to inspect; provide access on the dates you listed.',
+    ],
+    nextSteps: 'File at the HP clerk’s window; the court sets an inspection and a hearing date.',
+  },
+
+  illegal_lockout: {
+    title: 'Illegal Lockout (Restoration)',
+    workflowType: 'tenant_emergency',
+    statutes: ['RPAPL § 853', 'RPAPL § 768', 'NYC Admin Code § 26-521'],
+    Pdf: IllegalLockout,
+    fields: [
+      ...COURT_FIELDS,
+      { key: 'petitionerName', label: 'Your name (the locked-out tenant)' },
+      { key: 'petitionerAddress', label: 'Where to reach you now (mailing address)' },
+      { key: 'respondentNames', label: 'Owner / landlord name (respondent)' },
+      { key: 'premisesAddress', label: 'Address you were locked out of' },
+      { key: 'apartment', label: 'Apartment / unit', placeholder: 'e.g., 2R' },
+      { key: 'occupancyLength', label: 'How long you lived there before the lockout', placeholder: 'e.g., 3 years' },
+      { key: 'lockoutDate', label: 'Date of the lockout', type: 'date' },
+      { key: 'lockoutMethod', label: 'How you were locked out', type: 'textarea',
+        example: 'Examples: "Landlord changed the locks while I was at work." · "Removed my belongings and refused to give keys." · "Blocked the entrance and threatened me."' },
+      { key: 'isNyc', label: 'Is the building in New York City?', type: 'select',
+        options: [{ value: 'yes', label: 'Yes (NYC)' }, { value: 'no', label: 'No (outside NYC)' }] },
+      { key: 'petitionDate', label: 'Date you are signing', type: 'date' },
+    ],
+    defaults: (p) => {
+      const c = deriveCourt(p);
+      return { courtName: c.courtName, county: c.county, petitionerName: p.full_name || '',
+        petitionerAddress: fullAddress(p), respondentNames: p.landlord_name || '',
+        premisesAddress: fullAddress(p), apartment: p.unit_number || '', occupancyLength: '',
+        lockoutDate: '', lockoutMethod: '', isNyc: p.location_type === 'nyc' ? 'yes' : 'no', petitionDate: '' };
+    },
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'Take this to your borough Housing Court clerk right away — ask for an illegal-lockout (restoration) OSC.',
+      'A judge must sign the Order to Show Cause; it will say how to serve the landlord.',
+      'Bring proof you lived there (lease, mail, ID, photos) to the hearing.',
+    ],
+    nextSteps: 'Go to the courthouse immediately; the judge can order the landlord to let you back in.',
   },
 };
 

@@ -155,6 +155,26 @@ export const BIG_PICTURE = {
     steps: ['A warrant of eviction is issued / about to issue', 'File this Order to Show Cause to stay it', 'A judge signs it and sets a hearing', 'At the hearing, the court decides'],
     current: 1,
   },
+  hp_action_repairs: {
+    flow: 'Making your landlord do repairs (HP case, tenant)',
+    why:
+      'If your landlord won’t fix bad conditions, you can start an HP case — you (the tenant) ' +
+      'bring the landlord to Housing Court and ask the judge to order repairs. The city (HPD) ' +
+      'inspects. Right now you are preparing the petition and order to show cause; next, you ' +
+      'file them at the courthouse and the court sets an inspection and hearing.',
+    steps: ['List the conditions that need repair', 'File the HP petition + OSC at Housing Court', 'HPD inspects and places violations', 'Hearing — the court can order repairs (and penalties)'],
+    current: 0,
+  },
+  illegal_lockout: {
+    flow: 'Getting back in after an illegal lockout (tenant emergency)',
+    why:
+      'A landlord cannot lock you out without going to court — if they changed the locks or ' +
+      'removed your things, that’s an illegal eviction. You can ask the court to order the ' +
+      'landlord to let you back in. Act immediately. Right now you are preparing the petition ' +
+      'and order to show cause; next, a judge reviews it and can order your restoration.',
+    steps: ['You were locked out without a court order', 'File this petition + OSC at Housing Court right away', 'A judge signs it and sets a fast hearing', 'The court can order the landlord to let you back in'],
+    current: 1,
+  },
   osc_vacate_default: {
     flow: 'Undoing a default & pausing an eviction (tenant)',
     why:
@@ -246,6 +266,18 @@ export const WHAT_YOU_NEED = {
     'Your court papers and the index number',
     'Why the eviction should be paused (payment, assistance pending, time to move)',
     'Exactly what you’re asking the court to do',
+  ],
+  hp_action_repairs: [
+    'The building address and your apartment number',
+    'The owner/landlord’s name (and managing agent if any)',
+    'A list of the conditions that need repair',
+    'Dates and times you can give access for repairs',
+  ],
+  illegal_lockout: [
+    'The address you were locked out of',
+    'The landlord’s name',
+    'The date you were locked out and how it happened',
+    'Proof you lived there (lease, mail, ID) for the hearing',
   ],
 };
 

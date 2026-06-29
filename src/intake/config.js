@@ -103,8 +103,8 @@ export const NEEDS = {
       group: 'Starting a case',
       help: 'Bring your landlord to court — for repairs, or to get back in after an illegal lockout.',
       items: [
-        { key: 'hp_action_repairs', label: 'Make my landlord do repairs (HP case)' },
-        { key: 'illegal_lockout', label: 'Get back in after an illegal lockout' },
+        { key: 'hp_action_repairs', label: 'Make my landlord do repairs (HP case)', ready: true },
+        { key: 'illegal_lockout', label: 'Get back in after an illegal lockout', ready: true },
       ],
     },
   ],

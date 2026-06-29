@@ -2,7 +2,14 @@ import { Text, View } from '@react-pdf/renderer';
 import { styles, fmtMoney, fmtDate } from './pdfTheme.js';
 
 // ---- Court caption shared by petitions / notices of petition ----------------
-export function Caption({ data, docLabel, proceedingType }) {
+export function Caption({
+  data,
+  docLabel,
+  proceedingType,
+  petitionerLabel = 'Petitioner (Landlord),',
+  respondentLabel = 'Respondent(s) (Tenant(s)),',
+  petitionerAddressLabel = 'Business address:',
+}) {
   const {
     courtName = 'CIVIL COURT OF THE CITY OF NEW YORK',
     county = '____________',
@@ -21,13 +28,13 @@ export function Caption({ data, docLabel, proceedingType }) {
       <View style={styles.captionRow}>
         <View style={{ maxWidth: 300 }}>
           <Text style={styles.bold}>{petitionerName},</Text>
-          <Text style={styles.small}>Petitioner (Landlord),</Text>
+          <Text style={styles.small}>{petitionerLabel}</Text>
           <Text style={[styles.small, { marginTop: 2 }]}>
-            Business address: {petitionerAddress}
+            {petitionerAddressLabel} {petitionerAddress}
           </Text>
           <Text style={[styles.small, { marginVertical: 4 }]}>- against -</Text>
           <Text style={styles.bold}>{respondentNames},</Text>
-          <Text style={styles.small}>Respondent(s) (Tenant(s)),</Text>
+          <Text style={styles.small}>{respondentLabel}</Text>
           <Text style={styles.small}>Address: {premisesAddress}</Text>
           {fictitiousNames && (
             <Text style={[styles.small, { marginTop: 2, fontFamily: 'Helvetica-Oblique' }]}>

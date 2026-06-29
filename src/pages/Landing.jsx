@@ -282,9 +282,9 @@ const READY_DOCS = [
   'Tenant Answer (nonpayment & holdover) with defenses',
   'Order to Show Cause — vacate a default or stay an eviction',
   'Jury demand & fee-waiver (poor person) application',
+  'HP repairs case & illegal-lockout (restoration) petitions',
 ];
 const SOON_DOCS = [
-  'HP action (repairs) & illegal-lockout petitions',
   'Motions (default judgment, stipulations)',
   'DHCR filings (registration, lease renewal)',
   'Post-judgment (marshal instructions, satisfaction)',
