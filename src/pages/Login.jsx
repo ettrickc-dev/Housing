@@ -46,13 +46,14 @@ export default function Login() {
   }
 
   return (
-    <main className="mx-auto max-w-md px-4 py-10">
-      <h1 className="text-2xl font-bold text-navy">
-        {mode === 'signin' ? 'Sign in' : 'Create your account'}
+    <main className="mx-auto max-w-md px-4 py-12">
+      <div className="card shadow-sm">
+      <h1 className="page-h1">
+        {mode === 'signin' ? 'Welcome back' : 'Create your free account'}
       </h1>
       <p className="mt-1 text-sm text-gray-600">
-        Free to create an account and save your work. Payment is only required when
-        you generate a finished document.
+        Free to create an account and save your work. You only pay when you download a
+        finished, filing-ready document.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -92,11 +93,7 @@ export default function Login() {
         {error && <p className="text-sm text-red-600">{error}</p>}
         {notice && <p className="text-sm text-green-700">{notice}</p>}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full rounded-md bg-accent px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-        >
+        <button type="submit" disabled={busy} className="btn-primary w-full">
           {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
         </button>
       </form>
@@ -123,6 +120,7 @@ export default function Login() {
         Google sign-in is coming soon. For now, use email and password.{' '}
         <Link to="/" className="underline">Back home</Link>
       </p>
+      </div>
 
       <div className="mt-8">
         <Disclaimer variant="footer" />

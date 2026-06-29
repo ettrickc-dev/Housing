@@ -18,6 +18,7 @@ import FormLanding from './pages/FormLanding.jsx';
 import GuidesIndex from './pages/GuidesIndex.jsx';
 import GuideLanding from './pages/GuideLanding.jsx';
 import EFileGuide from './pages/EFileGuide.jsx';
+import LegalPage from './pages/LegalPage.jsx';
 import IntakeWizard from './intake/IntakeWizard.jsx';
 
 // Code-split the document generator: it pulls in the heavy React-PDF renderer,
@@ -91,13 +92,41 @@ function Header() {
 }
 
 function Footer() {
+  const cols = [
+    { h: 'Get started', links: [['Start free', '/start'], ['Pricing', '/pricing'], ['File online (NYSCEF)', '/efile']] },
+    { h: 'Learn', links: [['Forms', '/forms'], ['Guides', '/guides'], ['Court directory', '/courts']] },
+    { h: 'Legal', links: [['Terms of Service', '/terms'], ['Privacy Policy', '/privacy'], ['Refund Policy', '/refunds']] },
+  ];
   return (
-    <footer className="mt-12 border-t border-gray-200">
-      <div className="mx-auto max-w-prose space-y-3 px-4 py-6">
-        <Disclaimer variant="footer" />
-        <p className="text-xs text-gray-400">
-          © {OPERATOR_NAME}. A document preparation &amp; legal education service. Not a law firm.
-        </p>
+    <footer className="mt-16 border-t border-gray-200 bg-panel">
+      <div className="mx-auto max-w-5xl px-4 py-10">
+        <div className="grid gap-8 sm:grid-cols-4">
+          <div>
+            <div className="text-lg font-bold text-navy">{APP_NAME}</div>
+            <p className="mt-2 text-sm text-gray-600">
+              Plain-English New York Housing Court document preparation.
+            </p>
+          </div>
+          {cols.map((c) => (
+            <div key={c.h}>
+              <div className="text-sm font-semibold text-navy">{c.h}</div>
+              <ul className="mt-2 space-y-1.5">
+                {c.links.map(([label, to]) => (
+                  <li key={to}>
+                    <Link to={to} className="text-sm text-gray-600 hover:text-accent">{label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 border-t border-gray-200 pt-6">
+          <Disclaimer variant="footer" />
+          <p className="mt-3 text-xs text-gray-400">
+            © {OPERATOR_NAME}. A document preparation &amp; legal education service. Not a law firm,
+            and not affiliated with any court or government agency.
+          </p>
+        </div>
       </div>
     </footer>
   );
@@ -141,6 +170,9 @@ export default function App() {
           <Route path="/guides" element={<GuidesIndex />} />       {/* public SEO */}
           <Route path="/guides/:slug" element={<GuideLanding />} /> {/* public SEO */}
           <Route path="/efile" element={<EFileGuide />} />          {/* public SEO */}
+          <Route path="/terms" element={<LegalPage slug="terms" />} />
+          <Route path="/privacy" element={<LegalPage slug="privacy" />} />
+          <Route path="/refunds" element={<LegalPage slug="refunds" />} />
           <Route path="/pricing" element={<Pricing />} />   {/* public */}
           <Route
             path="/account"

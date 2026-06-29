@@ -70,6 +70,9 @@ const routes = [
     title: 'New York Housing Court Directory — Where to File | PlainRights Court',
     description: 'Find your New York housing court — NYC Housing Court by borough and guidance for courts outside New York City.',
   }],
+  ['/terms', { title: 'Terms of Service | PlainRights Court', description: 'Terms of Service for PlainRights Court.' }],
+  ['/privacy', { title: 'Privacy Policy | PlainRights Court', description: 'Privacy Policy for PlainRights Court.' }],
+  ['/refunds', { title: 'Refund Policy | PlainRights Court', description: 'Refund Policy for PlainRights Court.' }],
 ];
 
 for (const p of FORM_PAGES) {
