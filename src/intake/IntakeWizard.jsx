@@ -76,6 +76,12 @@ export default function IntakeWizard() {
     <main className="mx-auto max-w-prose px-4 py-10">
       <ProgressBar step={step} />
 
+      <p className="mt-3 text-center text-xs text-gray-500">
+        {user
+          ? '💾 Your answers are saved to your account as you go.'
+          : '💾 No account needed to start — your answers are saved on this device, and you only sign up when you download.'}
+      </p>
+
       {saveError && (
         <p className="mt-4 rounded-md bg-warnbanner px-4 py-2 text-sm text-navy">{saveError}</p>
       )}

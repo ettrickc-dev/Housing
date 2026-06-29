@@ -127,6 +127,34 @@ export const BIG_PICTURE = {
     ],
     current: 1,
   },
+  jury_demand: {
+    flow: 'Asking for a jury trial (tenant)',
+    why:
+      'If you want a jury (not just a judge) to decide your case, you ask for one with a ' +
+      'jury demand — usually filed together with your answer. Right now you are preparing ' +
+      'that demand. Note: there may be a jury fee, and some leases waive jury trials.',
+    steps: ['File your Answer', 'File this Jury Demand (with the answer)', 'Pay any jury fee', 'Your case is set for a jury'],
+    current: 1,
+  },
+  fee_waiver: {
+    flow: "Asking the court to waive fees you can't afford (CPLR § 1101)",
+    why:
+      "Court fees can be waived if you can't afford them. You file a short sworn application " +
+      '(a "poor person" application) explaining your finances. Right now you are preparing ' +
+      'that application; you file it with the document you need the fee waived for.',
+    steps: ['Fill out this fee-waiver application', 'Sign it before a notary', 'File it with your other papers', 'The court decides on the waiver'],
+    current: 0,
+  },
+  osc_stay_warrant: {
+    flow: 'Pausing an eviction (tenant emergency)',
+    why:
+      "If a warrant of eviction has been or is about to be issued, you can ask the judge to " +
+      'pause (stay) it — for example because you can pay, have assistance pending, or need a ' +
+      'little time. Act fast. Right now you are preparing that request; next, a judge reviews ' +
+      'it and sets a hearing.',
+    steps: ['A warrant of eviction is issued / about to issue', 'File this Order to Show Cause to stay it', 'A judge signs it and sets a hearing', 'At the hearing, the court decides'],
+    current: 1,
+  },
   osc_vacate_default: {
     flow: 'Undoing a default & pausing an eviction (tenant)',
     why:
@@ -203,6 +231,21 @@ export const WHAT_YOU_NEED = {
     'The date the default judgment/warrant was entered',
     'Why you missed court, in 1–2 sentences',
     'Your defense to the case, in 1–2 sentences',
+  ],
+  jury_demand: [
+    'Your court papers (index number and court)',
+    'Your name and the landlord’s name',
+  ],
+  fee_waiver: [
+    'Your court (and index number, if you have one)',
+    'Whether you get public assistance (and which program)',
+    'Your approximate monthly income and number of dependents',
+    'A sentence on why you can’t afford the fees',
+  ],
+  osc_stay_warrant: [
+    'Your court papers and the index number',
+    'Why the eviction should be paused (payment, assistance pending, time to move)',
+    'Exactly what you’re asking the court to do',
   ],
 };
 

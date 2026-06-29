@@ -7,6 +7,9 @@ import TerminationNotice from '../pdf/TerminationNotice.jsx';
 import NoticeToCure10 from '../pdf/NoticeToCure10.jsx';
 import HoldoverPetition from '../pdf/HoldoverPetition.jsx';
 import AnswerHoldover from '../pdf/AnswerHoldover.jsx';
+import JuryDemand from '../pdf/JuryDemand.jsx';
+import PoorPersonApplication from '../pdf/PoorPersonApplication.jsx';
+import OscStayWarrant from '../pdf/OscStayWarrant.jsx';
 import { joinAddress, fmtDate } from '../pdf/pdfTheme.js';
 
 // Reusable example/help snippets.
@@ -713,6 +716,106 @@ export const DOCUMENTS = {
     ],
     nextSteps:
       'Bring this Answer to the clerk, keep a stamped copy, and appear on your court date.',
+  },
+
+  jury_demand: {
+    title: 'Jury Demand',
+    workflowType: 'tenant_defense',
+    statutes: ['CPLR § 4102'],
+    Pdf: JuryDemand,
+    fields: [
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number', placeholder: 'From your court papers' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
+      { key: 'respondentNames', label: 'Respondent (tenant) name(s)' },
+      { key: 'premisesAddress', label: 'Premises address' },
+      { key: 'demandedByName', label: 'Your name (the person demanding a jury)' },
+      { key: 'demandedByRole', label: 'You are the', type: 'select', options: ['Respondent', 'Petitioner'] },
+      { key: 'demandDate', label: 'Date of this demand', type: 'date' },
+    ],
+    defaults: (p) => {
+      const c = deriveCourt(p);
+      return { courtName: c.courtName, county: c.county, indexNumber: p.court_index_number || '',
+        petitionerName: p.landlord_name || '', respondentNames: p.full_name || '',
+        premisesAddress: fullAddress(p), demandedByName: p.full_name || '', demandedByRole: 'Respondent', demandDate: '' };
+    },
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'A jury demand is usually filed with your answer and may require a jury fee — ask the clerk.',
+      'Some leases waive the right to a jury, and some issues are not triable by jury.',
+    ],
+    nextSteps: 'File this with your answer and ask the clerk about any jury fee.',
+  },
+
+  fee_waiver: {
+    title: 'Fee Waiver (Poor Person) Application',
+    workflowType: 'tenant_defense',
+    statutes: ['CPLR § 1101'],
+    Pdf: PoorPersonApplication,
+    fields: [
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number (if any)', placeholder: 'Leave blank if none yet' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
+      { key: 'respondentNames', label: 'Respondent (tenant) name(s)' },
+      { key: 'premisesAddress', label: 'Premises address' },
+      { key: 'applicantName', label: 'Your name (the applicant)' },
+      { key: 'applicantRole', label: 'You are the', type: 'select', options: ['Respondent', 'Petitioner'] },
+      { key: 'onPublicAssistance', label: 'Do you receive public assistance?', type: 'select',
+        options: [{ value: 'no', label: 'No' }, { value: 'yes', label: 'Yes' }] },
+      { key: 'assistanceType', label: 'If yes, which program?', placeholder: 'e.g., SNAP, Cash Assistance, SSI' },
+      { key: 'monthlyIncome', label: 'Your approximate monthly income ($)', type: 'number', placeholder: '0' },
+      { key: 'dependents', label: 'How many dependents do you support?', placeholder: '0' },
+      { key: 'reason', label: 'Why you cannot afford the fees', type: 'textarea',
+        placeholder: 'A sentence or two…',
+        example: 'Examples: "My income only covers rent and food." · "I am unemployed and have no savings."' },
+      { key: 'appDate', label: 'Date you are signing', type: 'date' },
+    ],
+    defaults: (p) => {
+      const c = deriveCourt(p);
+      return { courtName: c.courtName, county: c.county, indexNumber: p.court_index_number || '',
+        petitionerName: p.landlord_name || '', respondentNames: p.full_name || '', premisesAddress: fullAddress(p),
+        applicantName: p.full_name || '', applicantRole: 'Respondent', onPublicAssistance: 'no',
+        assistanceType: '', monthlyIncome: '', dependents: '0', reason: '', appDate: '' };
+    },
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'File this affidavit with the clerk along with the document you cannot afford the fee for.',
+      'Sign it in front of a notary (the clerk often has one).',
+    ],
+    nextSteps: 'File it with the court and ask the clerk to process your fee waiver.',
+  },
+
+  osc_stay_warrant: {
+    title: 'OSC to Stay an Eviction',
+    workflowType: 'tenant_emergency',
+    statutes: ['RPAPL § 749'],
+    Pdf: OscStayWarrant,
+    fields: [
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number', placeholder: 'From your court papers' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
+      { key: 'respondentNames', label: 'Your name (respondent)' },
+      { key: 'premisesAddress', label: 'Premises address (your home)' },
+      { key: 'reason', label: 'Why the eviction should be paused', type: 'textarea',
+        placeholder: 'A sentence or two…',
+        example: 'Examples: "I have an ERAP/rental-assistance application pending." · "I have the money and can pay now." · "I need a short time to move and have nowhere to go yet."' },
+      { key: 'reliefRequested', label: 'What you are asking the court to do', type: 'textarea',
+        placeholder: 'A sentence or two…',
+        example: 'Examples: "Give me until the end of the month to move." · "Let me pay the rent and stay." · "Pause the eviction while my assistance application is decided."' },
+      { key: 'oscDate', label: 'Date you are signing', type: 'date' },
+    ],
+    defaults: (p) => {
+      const c = deriveCourt(p);
+      return { courtName: c.courtName, county: c.county, indexNumber: p.court_index_number || '',
+        petitionerName: p.landlord_name || '', respondentNames: p.full_name || '', premisesAddress: fullAddress(p),
+        reason: '', reliefRequested: '', oscDate: '' };
+    },
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'Bring this to the clerk as soon as possible — a judge must sign it and set a hearing.',
+      'Sign the affidavit in front of a notary. Ask the clerk about an immediate stay.',
+    ],
+    nextSteps: 'Take this to the courthouse right away; the judge sets the hearing and how it must be served.',
   },
 };
 

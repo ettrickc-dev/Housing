@@ -158,6 +158,30 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ===== WHAT WE SUPPORT / COMING SOON ===== */}
+      <section className="bg-panel">
+        <div className="mx-auto max-w-4xl px-4 py-14">
+          <h2 className="text-center text-2xl font-bold text-navy">What you can prepare today</h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            We focus on New York Housing Court and add forms regularly. Here's what's ready now.
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="card">
+              <p className="font-semibold text-navy">✅ Available now</p>
+              <ul className="mt-2 space-y-1 text-sm text-gray-700">
+                {READY_DOCS.map((d) => <li key={d}>• {d}</li>)}
+              </ul>
+            </div>
+            <div className="card">
+              <p className="font-semibold text-navy">🔜 Coming soon</p>
+              <ul className="mt-2 space-y-1 text-sm text-gray-500">
+                {SOON_DOCS.map((d) => <li key={d}>• {d}</li>)}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ===== TRUST ===== */}
       <section className="mx-auto max-w-3xl px-4 py-14">
         <h2 className="text-center text-2xl font-bold text-navy">Why people trust PlainRights</h2>
@@ -246,6 +270,24 @@ const COMPARISON = [
   { f: 'Walks you through filing online (NYSCEF)', diy: false, atty: false, pr: true },
   { f: 'Under $50', diy: true, atty: false, pr: true },
   { f: 'Available tonight', diy: true, atty: false, pr: true },
+];
+
+const READY_DOCS = [
+  '14-Day Rent Demand (bilingual + §235-e notice)',
+  '10-Day Notice to Cure',
+  '30/60/90-Day Notice of Termination',
+  'Nonpayment Petition + Notice of Petition',
+  'Holdover Petition + Notice of Petition',
+  'Affidavit of Service',
+  'Tenant Answer (nonpayment & holdover) with defenses',
+  'Order to Show Cause — vacate a default or stay an eviction',
+  'Jury demand & fee-waiver (poor person) application',
+];
+const SOON_DOCS = [
+  'HP action (repairs) & illegal-lockout petitions',
+  'Motions (default judgment, stipulations)',
+  'DHCR filings (registration, lease renewal)',
+  'Post-judgment (marshal instructions, satisfaction)',
 ];
 
 const TRUST = [

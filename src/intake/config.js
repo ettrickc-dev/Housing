@@ -85,7 +85,8 @@ export const NEEDS = {
       items: [
         { key: 'answer_nonpayment', label: 'Answer a case about unpaid rent (with my defenses)', ready: true },
         { key: 'answer_holdover', label: 'Answer a case to remove me (with my defenses)', ready: true },
-        { key: 'jury_demand', label: 'Ask for a jury trial' },
+        { key: 'jury_demand', label: 'Ask for a jury trial', ready: true },
+        { key: 'fee_waiver', label: "Ask the court to waive fees (I can't afford them)", ready: true },
       ],
     },
     {
@@ -94,7 +95,7 @@ export const NEEDS = {
       help: "For example, to undo a decision the court made when you weren't there, or to pause an eviction.",
       items: [
         { key: 'osc_vacate_default', label: 'Undo a decision the court made without me', ready: true },
-        { key: 'osc_stay_warrant', label: 'Ask the court to pause my eviction' },
+        { key: 'osc_stay_warrant', label: 'Ask the court to pause my eviction', ready: true },
       ],
     },
     {
