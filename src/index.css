@@ -3,8 +3,20 @@
 @tailwind utilities;
 
 @layer base {
+  /* Slightly more generous base for readability + a premium feel. */
+  html {
+    font-size: 17px;
+  }
   body {
     @apply bg-white text-navy font-sans antialiased;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Tighter, more confident headings (modern SaaS look). */
+  h1, h2, h3 {
+    letter-spacing: -0.02em;
+    line-height: 1.15;
   }
 }
 
