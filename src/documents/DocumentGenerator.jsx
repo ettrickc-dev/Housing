@@ -5,6 +5,7 @@ import { useAuth } from '../lib/AuthContext.jsx';
 import { getProfile } from '../lib/profile.js';
 import { getLocalIntake, savePendingDraft, takePendingDraft } from '../lib/draft.js';
 import { getDocConfig, addDays } from './registry.jsx';
+import { bigPictureFor } from './bigPicture.js';
 import { getLawReviewDate, saveDocument, upsertWorkflow } from '../lib/documents.js';
 import { createCheckoutSession, createSubscriptionSession } from '../lib/api.js';
 import {
@@ -21,6 +22,7 @@ export default function DocumentGenerator() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const config = getDocConfig(docType);
+  const bigPicture = bigPictureFor(docType);
 
   const [values, setValues] = useState(null);
   const [previewData, setPreviewData] = useState(null);
@@ -188,6 +190,9 @@ export default function DocumentGenerator() {
       <Link to="/start" className="text-sm text-gray-500 hover:text-accent">← Back to the wizard</Link>
       <h1 className="mt-2 text-2xl font-bold text-navy">{config.title}</h1>
       <p className="mt-1 text-sm text-gray-500">New York State landlord–tenant form</p>
+
+      {bigPicture && <BigPicture bp={bigPicture} />}
+
       <p className="mt-3 rounded-md bg-panel px-4 py-2 text-sm text-gray-700">
         <strong>How this works:</strong> Answer the questions below. Your form fills in
         and updates on the right as you type. When it looks right, download it — we'll
@@ -458,6 +463,33 @@ function Field({ field, value, onChange }) {
       )}
       <Example text={field.example} />
     </label>
+  );
+}
+
+// Bold, calming orientation panel: the whole process with "you are here".
+function BigPicture({ bp }) {
+  return (
+    <div className="mt-4 rounded-lg border-2 border-accent bg-blue-50 p-4">
+      <p className="text-sm font-bold uppercase tracking-wide text-accent">
+        The big picture: {bp.flow}
+      </p>
+      <p className="mt-1 text-base font-semibold leading-snug text-navy">{bp.why}</p>
+      <ol className="mt-3 space-y-1.5">
+        {bp.steps.map((s, i) => {
+          const done = i < bp.current;
+          const here = i === bp.current;
+          return (
+            <li key={i} className={`flex items-start gap-2 text-sm ${here ? 'font-bold text-navy' : done ? 'text-gray-500' : 'text-gray-500'}`}>
+              <span className="mt-0.5">{here ? '➡️' : done ? '✅' : '⬜'}</span>
+              <span>
+                {s}
+                {here && <span className="ml-1 rounded bg-accent px-1.5 py-0.5 text-xs font-bold text-white">YOU ARE HERE</span>}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 
