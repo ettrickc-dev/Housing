@@ -1,6 +1,7 @@
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { styles, fmtDate } from './pdfTheme.js';
 import { PdfFooter, PdfPageNumber, PdfWatermark } from './PdfShared.jsx';
+import { Caption } from './PdfBlocks.jsx';
 import InstructionsPage from './InstructionsPage.jsx';
 
 // Order to Show Cause to vacate a default judgment + supporting affidavit.
@@ -23,25 +24,11 @@ export default function OscVacateDefault({ data = {}, watermark = false, lawRevi
       <Page size="LETTER" style={styles.page}>
         <PdfWatermark show={watermark} />
 
-        <View style={styles.captionWrap}>
-          <Text style={[styles.bold, styles.center]}>{courtName}</Text>
-          <Text style={[styles.center, styles.small]}>COUNTY OF {county}</Text>
-          <View style={[styles.captionRow, { marginTop: 6 }]}>
-            <View style={{ maxWidth: 280 }}>
-              <Text>{petitionerName},</Text>
-              <Text style={styles.small}>Petitioner,</Text>
-              <Text style={[styles.small, { marginVertical: 4 }]}>-against-</Text>
-              <Text>{respondentNames},</Text>
-              <Text style={styles.small}>Respondent.</Text>
-            </View>
-            <View style={styles.indexBox}>
-              <Text style={styles.small}>Index / L&amp;T No.</Text>
-              <Text style={styles.bold}>{indexNumber || '____________'}</Text>
-              <Text style={[styles.small, { marginTop: 6 }]}>ORDER TO</Text>
-              <Text style={styles.small}>SHOW CAUSE</Text>
-            </View>
-          </View>
-        </View>
+        <Caption
+          data={{ courtName, county, indexNumber, petitionerName, respondentNames, premisesAddress, fictitiousNames: false }}
+          docLabel="ORDER TO SHOW CAUSE"
+          proceedingType="Vacate Default"
+        />
 
         <Text style={styles.h1}>ORDER TO SHOW CAUSE</Text>
         <Text style={styles.para}>

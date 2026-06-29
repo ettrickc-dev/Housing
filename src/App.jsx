@@ -41,30 +41,21 @@ function Header() {
           {APP_NAME}
         </Link>
         <nav className="flex items-center gap-4 text-sm">
-          <Link to="/forms" className="hidden text-navy hover:text-accent sm:inline">
-            Forms
-          </Link>
-          <Link to="/guides" className="hidden text-navy hover:text-accent sm:inline">
-            Guides
-          </Link>
-          <Link to="/efile" className="hidden font-medium text-accent hover:underline sm:inline">
-            File online
-          </Link>
           {user ? (
             <>
               <Link to="/dashboard" className="text-navy hover:text-accent">
                 Dashboard
               </Link>
-              <Link to="/profile" className="text-navy hover:text-accent">
+              <Link to="/profile" className="hidden text-navy hover:text-accent sm:inline">
                 Profile
               </Link>
-              <Link to="/courts" className="text-navy hover:text-accent">
-                Courts
-              </Link>
-              <Link to="/account" className="text-navy hover:text-accent">
+              <Link to="/account" className="hidden text-navy hover:text-accent sm:inline">
                 Account
               </Link>
-              <Link to="/law-updates" className="text-navy hover:text-accent">
+              <Link to="/courts" className="hidden text-navy hover:text-accent sm:inline">
+                Courts
+              </Link>
+              <Link to="/law-updates" className="hidden text-navy hover:text-accent sm:inline">
                 Law updates
               </Link>
               {isAdmin && (
@@ -77,9 +68,21 @@ function Header() {
               </button>
             </>
           ) : (
-            <Link to="/login" className="text-navy hover:text-accent">
-              Sign in
-            </Link>
+            <>
+              {/* First-time visitors: only the essentials */}
+              <Link to="/start" className="text-navy hover:text-accent">
+                Document Production
+              </Link>
+              <Link to="/guides" className="hidden text-navy hover:text-accent sm:inline">
+                Guides
+              </Link>
+              <Link to="/pricing" className="text-navy hover:text-accent">
+                Pricing
+              </Link>
+              <Link to="/login" className="font-medium text-accent hover:underline">
+                Sign In
+              </Link>
+            </>
           )}
         </nav>
       </div>

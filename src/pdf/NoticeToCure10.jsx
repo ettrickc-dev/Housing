@@ -17,6 +17,7 @@ export default function NoticeToCure10({ data = {}, watermark = false, lawReview
     leaseProvision = '',
     cureDate,
     noticeDate,
+    includeSpanish = true,
   } = data;
 
   return (
@@ -67,6 +68,44 @@ export default function NoticeToCure10({ data = {}, watermark = false, lawReview
         <PdfFooter lawReviewDate={lawReviewDate} hasStatutes />
         <PdfPageNumber />
       </Page>
+
+      {includeSpanish && (
+        <Page size="LETTER" style={styles.page}>
+          <PdfWatermark show={watermark} />
+          <Text style={styles.h1}>AVISO DE DIEZ (10) DÍAS PARA SUBSANAR</Text>
+          <Text style={[styles.center, styles.small, styles.para]}>
+            Aviso para corregir una violación del contrato de arrendamiento
+          </Text>
+          <Text style={styles.para}>
+            <Text style={styles.bold}>PARA: </Text>{tenantNames}, Inquilino(s) / Ocupante(s)
+          </Text>
+          <Text style={styles.para}>
+            <Text style={styles.bold}>LOCAL: </Text>{premisesAddress}
+          </Text>
+          <View style={styles.hr} />
+          <Text style={styles.para}>
+            TOME AVISO que usted está violando una obligación sustancial de su arrendamiento
+            {leaseProvision ? ` bajo la siguiente disposición del contrato: ${leaseProvision},` : ','} en
+            que: {violationDescription}
+          </Text>
+          <Text style={styles.para}>
+            TOME AVISO ADEMÁS que usted debe corregir la condición anterior en o antes del{' '}
+            <Text style={styles.bold}>{fmtDate(cureDate)}</Text>, que es por lo menos diez (10)
+            días después de la entrega de este aviso. Si usted no la corrige dentro de ese
+            plazo, el casero/propietario podrá optar por terminar su arrendamiento y comenzar
+            un procedimiento sumario de retención para recobrar la posesión del local.
+          </Text>
+          <Text style={[styles.small, styles.para]}>Fecha de este aviso: {fmtDate(noticeDate)}</Text>
+          <View style={styles.sigLine}>
+            <Text>{landlordName}</Text>
+            <Text style={styles.small}>{servedByAgent ? 'Agente del Casero' : 'Casero / Propietario'}</Text>
+            <Text style={styles.small}>{landlordAddress}</Text>
+          </View>
+          <PdfFooter lawReviewDate={lawReviewDate} hasStatutes />
+          <PdfPageNumber />
+        </Page>
+      )}
+
       {instructions && (
         <InstructionsPage instructions={instructions} lawReviewDate={lawReviewDate} />
       )}

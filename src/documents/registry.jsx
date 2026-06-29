@@ -504,6 +504,7 @@ export const DOCUMENTS = {
         example: 'Usually today or when you plan to serve it.' },
       { key: 'terminationDate', label: 'Date the tenant must move out by', type: 'date',
         example: 'Pick a date on or after the earliest date shown in the deadline box.' },
+      { key: 'includeSpanish', label: 'Include a Spanish-language copy', type: 'checkbox' },
       ...NOTICE_GOODCAUSE_FIELDS,
     ],
     defaults: (p) => ({
@@ -515,6 +516,7 @@ export const DOCUMENTS = {
       noticeDays: '30',
       noticeDate: '',
       terminationDate: '',
+      includeSpanish: true,
       ...NOTICE_GOODCAUSE_DEFAULTS,
     }),
     derive: (v) => v,
@@ -569,6 +571,7 @@ export const DOCUMENTS = {
         example: 'Usually today or when you plan to serve it.' },
       { key: 'cureDate', label: 'Deadline for the tenant to fix it', type: 'date',
         example: 'Pick a date on or after the earliest date shown in the deadline box.' },
+      { key: 'includeSpanish', label: 'Include a Spanish-language copy', type: 'checkbox' },
       ...NOTICE_GOODCAUSE_FIELDS,
     ],
     defaults: (p) => ({
@@ -581,6 +584,7 @@ export const DOCUMENTS = {
       violationDescription: '',
       noticeDate: '',
       cureDate: '',
+      includeSpanish: true,
       ...NOTICE_GOODCAUSE_DEFAULTS,
     }),
     derive: (v) => v,

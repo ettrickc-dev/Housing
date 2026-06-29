@@ -17,6 +17,7 @@ export default function TerminationNotice({ data = {}, watermark = false, lawRev
     noticeDays = '30',
     terminationDate,
     noticeDate,
+    includeSpanish = true,
   } = data;
 
   return (
@@ -69,6 +70,44 @@ export default function TerminationNotice({ data = {}, watermark = false, lawRev
         <PdfFooter lawReviewDate={lawReviewDate} hasStatutes />
         <PdfPageNumber />
       </Page>
+
+      {includeSpanish && (
+        <Page size="LETTER" style={styles.page}>
+          <PdfWatermark show={watermark} />
+          <Text style={styles.h1}>AVISO DE TERMINACIÓN DE {noticeDays} DÍAS DE ARRENDAMIENTO</Text>
+          <Text style={[styles.center, styles.small, styles.para]}>
+            Aviso de que el arrendamiento no será renovado / será terminado — RPL § 226-c
+          </Text>
+          <Text style={styles.para}>
+            <Text style={styles.bold}>PARA: </Text>{tenantNames}, Inquilino(s) / Ocupante(s)
+          </Text>
+          <Text style={styles.para}>
+            <Text style={styles.bold}>LOCAL: </Text>{premisesAddress}
+          </Text>
+          <View style={styles.hr} />
+          <Text style={styles.para}>
+            TOME AVISO que el casero/propietario ({landlordName}) elige terminar su
+            arrendamiento del local arriba descrito. Usted debe desalojar y entregar la
+            posesión del local en o antes del{' '}
+            <Text style={styles.bold}>{fmtDate(terminationDate)}</Text>, que es por lo menos{' '}
+            <Text style={styles.bold}>{noticeDays} días</Text> después de la entrega de este aviso.
+          </Text>
+          <Text style={styles.para}>
+            TOME AVISO ADEMÁS que si usted no desaloja para esa fecha, el casero/propietario
+            podrá comenzar un procedimiento sumario de retención (holdover) para recobrar la
+            posesión del local, junto con cualquier costo permitido por la ley.
+          </Text>
+          <Text style={[styles.small, styles.para]}>Fecha de este aviso: {fmtDate(noticeDate)}</Text>
+          <View style={styles.sigLine}>
+            <Text>{landlordName}</Text>
+            <Text style={styles.small}>{servedByAgent ? 'Agente del Casero' : 'Casero / Propietario'}</Text>
+            <Text style={styles.small}>{landlordAddress}</Text>
+          </View>
+          <PdfFooter lawReviewDate={lawReviewDate} hasStatutes />
+          <PdfPageNumber />
+        </Page>
+      )}
+
       {instructions && (
         <InstructionsPage instructions={instructions} lawReviewDate={lawReviewDate} />
       )}

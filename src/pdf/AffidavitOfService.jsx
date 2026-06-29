@@ -1,6 +1,7 @@
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { styles, fmtDate } from './pdfTheme.js';
 import { PdfFooter, PdfPageNumber, PdfWatermark } from './PdfShared.jsx';
+import { Caption } from './PdfBlocks.jsx';
 import InstructionsPage from './InstructionsPage.jsx';
 
 // Affidavit of Service — supports personal, substitute, and conspicuous
@@ -42,25 +43,11 @@ export default function AffidavitOfService({ data = {}, watermark = false, lawRe
       <Page size="LETTER" style={styles.page}>
         <PdfWatermark show={watermark} />
 
-        <View style={styles.captionWrap}>
-          <Text style={[styles.bold, styles.center]}>{courtName}</Text>
-          <Text style={[styles.center, styles.small]}>COUNTY OF {county}</Text>
-          <View style={[styles.captionRow, { marginTop: 6 }]}>
-            <View style={{ maxWidth: 280 }}>
-              <Text>{petitionerName},</Text>
-              <Text style={styles.small}>Petitioner,</Text>
-              <Text style={[styles.small, { marginVertical: 4 }]}>-against-</Text>
-              <Text>{respondentNames},</Text>
-              <Text style={styles.small}>Respondent(s).</Text>
-            </View>
-            <View style={styles.indexBox}>
-              <Text style={styles.small}>Index / L&amp;T No.</Text>
-              <Text style={styles.bold}>{indexNumber || '____________'}</Text>
-              <Text style={[styles.small, { marginTop: 6 }]}>AFFIDAVIT</Text>
-              <Text style={styles.small}>OF SERVICE</Text>
-            </View>
-          </View>
-        </View>
+        <Caption
+          data={{ courtName, county, indexNumber, petitionerName, respondentNames, premisesAddress: serviceAddress, fictitiousNames: false }}
+          docLabel="AFFIDAVIT OF SERVICE"
+          proceedingType=""
+        />
 
         <Text style={[styles.small, styles.para]}>
           STATE OF NEW YORK, COUNTY OF {county} ss.:
