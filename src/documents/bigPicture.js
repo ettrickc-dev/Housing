@@ -147,3 +147,65 @@ export const BIG_PICTURE = {
 export function bigPictureFor(docType) {
   return BIG_PICTURE[docType] || null;
 }
+
+// "Have these handy" checklist shown at the top of each interview (RocketLawyer-style,
+// but better — paired with examples in every field). Reduces "do I have everything?" drop-off.
+export const WHAT_YOU_NEED = {
+  rent_demand_14day: [
+    'The tenant name(s) on the lease',
+    'The rental (premises) address with unit number',
+    'Which months are unpaid and the total amount owed',
+    'The date you plan to deliver the notice',
+  ],
+  notice_cure_10day: [
+    'The tenant name(s) and premises address',
+    'What lease rule was broken (and the lease paragraph if you have it)',
+    'A short description of the problem',
+    'The date you plan to deliver the notice',
+  ],
+  notice_termination: [
+    'The tenant name(s) and premises address',
+    'How long the tenant has lived there (sets 30/60/90 days)',
+    'The date you plan to deliver the notice',
+  ],
+  nonpayment_petition: [
+    'Your court (NYC: Civil Court, Housing Part) and county',
+    'Petitioner (landlord) and respondent (tenant) names + addresses',
+    'Months owed and total amount',
+    'The date your 14-day demand was served and how',
+    'Regulatory status & Good Cause coverage of the unit',
+  ],
+  holdover_petition: [
+    'Your court and county',
+    'Petitioner (landlord) and respondent (tenant) names + addresses',
+    'The predicate notice you served and the date',
+    'The ground for the holdover',
+    'Regulatory status & Good Cause coverage of the unit',
+  ],
+  affidavit_of_service: [
+    'The index number from your court papers',
+    'Who served the papers (an adult who is not a party)',
+    'What was served, and the date, time, and place',
+    'How it was served (personal, substitute, or nail-and-mail)',
+  ],
+  answer_nonpayment: [
+    'Your court papers (for the index number and court)',
+    'Your landlord’s name',
+    'Which defenses apply to you (we list them with explanations)',
+  ],
+  answer_holdover: [
+    'Your court papers (for the index number and court)',
+    'Your landlord’s name',
+    'Which defenses apply to you (we list them with explanations)',
+  ],
+  osc_vacate_default: [
+    'Your court papers and the index number',
+    'The date the default judgment/warrant was entered',
+    'Why you missed court, in 1–2 sentences',
+    'Your defense to the case, in 1–2 sentences',
+  ],
+};
+
+export function whatYouNeedFor(docType) {
+  return WHAT_YOU_NEED[docType] || null;
+}

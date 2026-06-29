@@ -3,9 +3,12 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { PDFViewer, pdf } from '@react-pdf/renderer';
 import { useAuth } from '../lib/AuthContext.jsx';
 import { getProfile } from '../lib/profile.js';
-import { getLocalIntake, savePendingDraft, takePendingDraft } from '../lib/draft.js';
+import {
+  getLocalIntake, savePendingDraft, takePendingDraft,
+  saveFormAutosave, loadFormAutosave, clearFormAutosave,
+} from '../lib/draft.js';
 import { getDocConfig, addDays } from './registry.jsx';
-import { bigPictureFor } from './bigPicture.js';
+import { bigPictureFor, whatYouNeedFor } from './bigPicture.js';
 import { getLawReviewDate, saveDocument, upsertWorkflow } from '../lib/documents.js';
 import { createCheckoutSession, createSubscriptionSession } from '../lib/api.js';
 import {
@@ -23,6 +26,7 @@ export default function DocumentGenerator() {
   const navigate = useNavigate();
   const config = getDocConfig(docType);
   const bigPicture = bigPictureFor(docType);
+  const whatYouNeed = whatYouNeedFor(docType);
 
   const [values, setValues] = useState(null);
   const [previewData, setPreviewData] = useState(null);
@@ -54,9 +58,12 @@ export default function DocumentGenerator() {
       const lrd = await getLawReviewDate().catch(() => null);
       if (!alive) return;
       let defaults = config.defaults(p || {});
-      // Restore a document the user was building before they signed up.
+      // Restore in-progress work: a signup-handoff draft first, otherwise the
+      // continuous auto-save (survives refresh / accidental navigation).
       const pending = takePendingDraft(docType);
+      const auto = pending ? null : loadFormAutosave(docType);
       if (pending) defaults = { ...defaults, ...pending };
+      else if (auto) defaults = { ...defaults, ...auto };
       setValues(defaults);
       setPreviewData(config.derive(defaults));
       setLawReviewDate(lrd);
@@ -70,9 +77,12 @@ export default function DocumentGenerator() {
   // Debounce preview updates so typing doesn't re-render the PDF every keystroke.
   useEffect(() => {
     if (!values) return;
-    const t = setTimeout(() => setPreviewData(config.derive(values)), 600);
+    const t = setTimeout(() => {
+      setPreviewData(config.derive(values));
+      saveFormAutosave(docType, values); // continuous auto-save
+    }, 600);
     return () => clearTimeout(t);
-  }, [values, config]);
+  }, [values, config, docType]);
 
   const PdfDoc = config?.Pdf;
   const instructions = config
@@ -148,6 +158,7 @@ export default function DocumentGenerator() {
         }).catch(() => {});
       }
       setSaved(rec);
+      clearFormAutosave(docType); // document generated — fresh start next time
     } catch (err) {
       setError(err.message || 'Could not generate the document.');
     } finally {
@@ -209,6 +220,22 @@ export default function DocumentGenerator() {
             We've filled in what we can from your profile — change anything you need to.
             Not sure what to write? Read the 💡 example under each box.
           </p>
+
+          {whatYouNeed && (
+            <div className="mt-4 rounded-md border border-gray-200 bg-panel p-3 text-sm">
+              <p className="font-semibold text-navy">✅ Have these handy</p>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-gray-600">
+                {whatYouNeed.map((w, i) => <li key={i}>{w}</li>)}
+              </ul>
+              <p className="mt-2 text-xs text-gray-500">
+                Don't have everything? Start anyway — your answers save automatically and
+                you can finish later.
+              </p>
+            </div>
+          )}
+
+          <ProgressBar fields={config.fields} values={values} />
+
           <div className="mt-4 space-y-4">
             {config.fields.map((f) => (
               <Field key={f.key} field={f} value={values[f.key]} onChange={setField} />
@@ -463,6 +490,29 @@ function Field({ field, value, onChange }) {
       )}
       <Example text={field.example} />
     </label>
+  );
+}
+
+// Progress + auto-save reassurance for the form.
+function ProgressBar({ fields, values }) {
+  const counted = fields.filter((f) => f.type !== 'checkbox');
+  const total = counted.length || 1;
+  const filled = counted.filter((f) => {
+    const v = values[f.key];
+    if (Array.isArray(v)) return v.length > 0;
+    return v !== undefined && v !== null && String(v).trim() !== '';
+  }).length;
+  const pct = Math.round((filled / total) * 100);
+  return (
+    <div className="mt-4">
+      <div className="flex items-center justify-between text-xs text-gray-500">
+        <span>{filled} of {total} answered</span>
+        <span className="font-medium text-green-700">💾 Saved automatically</span>
+      </div>
+      <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200">
+        <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
   );
 }
 

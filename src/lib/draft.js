@@ -31,3 +31,15 @@ export function takePendingDraft(docType) {
   } catch {}
   return null;
 }
+
+// Continuous per-document auto-save (survives refresh / accidental navigation).
+const formKey = (docType) => `pr_form_${docType}`;
+export function saveFormAutosave(docType, values) {
+  try { localStorage.setItem(formKey(docType), JSON.stringify(values || {})); } catch {}
+}
+export function loadFormAutosave(docType) {
+  try { return JSON.parse(localStorage.getItem(formKey(docType))); } catch { return null; }
+}
+export function clearFormAutosave(docType) {
+  try { localStorage.removeItem(formKey(docType)); } catch {}
+}
