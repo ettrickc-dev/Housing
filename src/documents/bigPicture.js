@@ -155,6 +155,27 @@ export const BIG_PICTURE = {
     steps: ['A warrant of eviction is issued / about to issue', 'File this Order to Show Cause to stay it', 'A judge signs it and sets a hearing', 'At the hearing, the court decides'],
     current: 1,
   },
+  motion_default_judgment: {
+    flow: 'Finishing a case the tenant ignored (landlord)',
+    why:
+      'If your tenant was properly served but never answered or appeared, you can ask the ' +
+      'court for a default judgment — possession, a money judgment for unpaid rent, and a ' +
+      'warrant of eviction. Right now you are preparing that motion and sworn affidavit ' +
+      '(including the required military-service statement); next, you file it and the court ' +
+      'enters the judgment.',
+    steps: ['You served the petition and the tenant didn’t respond', 'File this motion + affidavit for a default judgment', 'The court enters the judgment and warrant', 'A marshal/sheriff serves the eviction notice'],
+    current: 1,
+  },
+  stipulation_settlement: {
+    flow: 'Settling the case in writing (either side)',
+    why:
+      'Most housing cases end in a written agreement called a stipulation — for example, a ' +
+      'payment plan or a move-out date — which the judge "so-orders" to make it binding. ' +
+      'Right now you are putting the agreed terms in writing; both sides sign and the judge ' +
+      'so-orders it on your court date.',
+    steps: ['Both sides agree on terms', 'Put the terms in this stipulation', 'Both parties sign it', 'The judge so-orders it on your court date'],
+    current: 1,
+  },
   hp_action_repairs: {
     flow: 'Making your landlord do repairs (HP case, tenant)',
     why:
@@ -266,6 +287,17 @@ export const WHAT_YOU_NEED = {
     'Your court papers and the index number',
     'Why the eviction should be paused (payment, assistance pending, time to move)',
     'Exactly what you’re asking the court to do',
+  ],
+  motion_default_judgment: [
+    'Your index / L&T number and the court',
+    'The date and method the petition was served (and the proof of service)',
+    'For nonpayment: the total rent owed for the money judgment',
+    'Who is signing (petitioner, agent, or attorney)',
+  ],
+  stipulation_settlement: [
+    'Your index / L&T number and the court',
+    'What you both agreed: a payment amount + date, or a move-out date',
+    'Any other terms (repairs, waived fees, withdrawn claims)',
   ],
   hp_action_repairs: [
     'The building address and your apartment number',

@@ -12,6 +12,8 @@ import PoorPersonApplication from '../pdf/PoorPersonApplication.jsx';
 import OscStayWarrant from '../pdf/OscStayWarrant.jsx';
 import HpAction from '../pdf/HpAction.jsx';
 import IllegalLockout from '../pdf/IllegalLockout.jsx';
+import MotionDefaultJudgment from '../pdf/MotionDefaultJudgment.jsx';
+import StipulationSettlement from '../pdf/StipulationSettlement.jsx';
 import { joinAddress, fmtDate } from '../pdf/pdfTheme.js';
 
 // Reusable example/help snippets.
@@ -890,6 +892,87 @@ export const DOCUMENTS = {
       'Bring proof you lived there (lease, mail, ID, photos) to the hearing.',
     ],
     nextSteps: 'Go to the courthouse immediately; the judge can order the landlord to let you back in.',
+  },
+
+  motion_default_judgment: {
+    title: 'Motion for Default Judgment',
+    workflowType: 'landlord_motion',
+    statutes: ['RPAPL § 732', 'RPAPL § 747', 'Servicemembers Civil Relief Act'],
+    Pdf: MotionDefaultJudgment,
+    fields: [
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
+      { key: 'petitionerAddress', label: 'Petitioner business address' },
+      { key: 'respondentNames', label: 'Respondent (tenant) name(s)' },
+      { key: 'premisesAddress', label: 'Premises address' },
+      { key: 'caseType', label: 'What kind of case is this?', type: 'select',
+        options: [{ value: 'nonpayment', label: 'Nonpayment (unpaid rent)' }, { value: 'holdover', label: 'Holdover' }] },
+      { key: 'serviceDate', label: 'Date the petition was served', type: 'date' },
+      { key: 'serviceMethod', label: 'How it was served', placeholder: 'e.g., conspicuous service (nail & mail)' },
+      { key: 'amountDue', label: 'Rent owed for money judgment ($) — nonpayment only', type: 'number', placeholder: '0' },
+      { key: 'returnDate', label: 'Motion return date (if required)', type: 'date' },
+      { key: 'signerName', label: 'Who is signing the affidavit' },
+      { key: 'signerRole', label: 'Signing as the', type: 'select',
+        options: ['Petitioner', 'Agent', 'Attorney for Petitioner'] },
+      { key: 'motionDate', label: 'Date you are signing', type: 'date' },
+    ],
+    defaults: (p) => {
+      const c = deriveCourt(p);
+      return { courtName: c.courtName, county: c.county, indexNumber: p.court_index_number || '',
+        petitionerName: p.landlord_name || p.full_name || '', petitionerAddress: fullAddress(p),
+        respondentNames: '', premisesAddress: fullAddress(p), caseType: 'nonpayment',
+        serviceDate: '', serviceMethod: '', amountDue: '', returnDate: '',
+        signerName: p.landlord_name || p.full_name || '', signerRole: 'Petitioner', motionDate: '' };
+    },
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'File the Notice of Motion + affidavit with the court; some clerks take default applications at the window.',
+      'Attach the proof of service of the Notice of Petition and Petition.',
+      'A money judgment for rent is available in nonpayment cases; a warrant issues on the default.',
+    ],
+    nextSteps: 'File with the court (or present at the clerk’s window); the court enters the judgment and warrant.',
+  },
+
+  stipulation_settlement: {
+    title: 'Stipulation of Settlement',
+    workflowType: 'court_settlement',
+    statutes: [],
+    Pdf: StipulationSettlement,
+    fields: [
+      ...COURT_FIELDS,
+      { key: 'indexNumber', label: 'Index / L&T number' },
+      { key: 'petitionerName', label: 'Petitioner (landlord) name' },
+      { key: 'petitionerAddress', label: 'Petitioner address' },
+      { key: 'respondentNames', label: 'Respondent (tenant) name(s)' },
+      { key: 'premisesAddress', label: 'Premises address' },
+      { key: 'settlementType', label: 'How are you settling?', type: 'select',
+        options: [
+          { value: 'payment', label: 'Tenant pays what is owed (payment plan)' },
+          { value: 'moveout', label: 'Tenant moves out by a date' },
+          { value: 'other', label: 'Other / custom terms' },
+        ] },
+      { key: 'totalAmount', label: 'Amount tenant will pay ($) — payment settlements', type: 'number', placeholder: '0' },
+      { key: 'payByDate', label: 'Pay-by date — payment settlements', type: 'date' },
+      { key: 'moveOutDate', label: 'Move-out date — move-out settlements', type: 'date' },
+      { key: 'otherTerms', label: 'Any other agreed terms', type: 'textarea',
+        example: 'Examples: "Landlord will repair the bathroom leak by July 15." · "Tenant withdraws the counterclaim." · "Petitioner waives late fees."' },
+      { key: 'stipDate', label: 'Date of this agreement', type: 'date' },
+    ],
+    defaults: (p) => {
+      const c = deriveCourt(p);
+      return { courtName: c.courtName, county: c.county, indexNumber: p.court_index_number || '',
+        petitionerName: p.landlord_name || p.full_name || '', petitionerAddress: fullAddress(p),
+        respondentNames: '', premisesAddress: fullAddress(p), settlementType: 'payment',
+        totalAmount: '', payByDate: '', moveOutDate: '', otherTerms: '', stipDate: '' };
+    },
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'Both parties sign. Bring it to your court date so the judge can "so-order" it.',
+      'A stipulation is a binding agreement — make sure every term is one you can live with.',
+      'Each side should keep a signed, so-ordered copy.',
+    ],
+    nextSteps: 'Both parties sign and present it to the judge to be so-ordered on your court date.',
   },
 };
 

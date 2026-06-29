@@ -76,6 +76,15 @@ export const NEEDS = {
         { key: 'military_affidavit', label: 'State whether the tenant is in the military (required affidavit)' },
       ],
     },
+    {
+      plainTitle: 'Finish or settle a case already in court',
+      group: 'Motions & settlement',
+      help: 'When your case is already filed: get a judgment if the tenant never responded, or put an agreement in writing.',
+      items: [
+        { key: 'motion_default_judgment', label: 'Get a judgment because the tenant never responded (default)', ready: true },
+        { key: 'stipulation_settlement', label: 'Put a settlement agreement in writing (stipulation)', ready: true },
+      ],
+    },
   ],
   tenant: [
     {

@@ -283,9 +283,9 @@ const READY_DOCS = [
   'Order to Show Cause — vacate a default or stay an eviction',
   'Jury demand & fee-waiver (poor person) application',
   'HP repairs case & illegal-lockout (restoration) petitions',
+  'Motion for default judgment & stipulation of settlement',
 ];
 const SOON_DOCS = [
-  'Motions (default judgment, stipulations)',
   'DHCR filings (registration, lease renewal)',
   'Post-judgment (marshal instructions, satisfaction)',
 ];
