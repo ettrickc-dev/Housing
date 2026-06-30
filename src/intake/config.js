@@ -54,7 +54,16 @@ export const NEEDS = {
         { key: 'rent_demand_14day', label: 'Demand unpaid rent (14-day notice)', ready: true },
         { key: 'notice_cure_10day', label: 'Tell a tenant to fix a lease problem (10-day notice)', ready: true },
         { key: 'notice_termination', label: 'Tell a tenant to move out (30/60/90-day notice)', ready: true },
-        { key: 'notice_nonrenewal_rs', label: "Don't renew a rent-stabilized lease" },
+      ],
+    },
+    {
+      plainTitle: 'Rent-stabilized leases & DHCR',
+      group: 'Rent regulation',
+      help: 'For rent-stabilized apartments: offer a renewal, decline to renew on a permitted ground, or prepare your DHCR annual registration.',
+      items: [
+        { key: 'renewal_lease_rs', label: 'Offer a rent-stabilized renewal lease', ready: true },
+        { key: 'notice_nonrenewal_rs', label: "Don't renew a rent-stabilized lease (with a valid ground)", ready: true },
+        { key: 'dhcr_registration', label: 'Prepare my DHCR annual registration', ready: true },
       ],
     },
     {

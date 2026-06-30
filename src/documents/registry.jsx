@@ -16,6 +16,9 @@ import MotionDefaultJudgment from '../pdf/MotionDefaultJudgment.jsx';
 import StipulationSettlement from '../pdf/StipulationSettlement.jsx';
 import MarshalRequisition from '../pdf/MarshalRequisition.jsx';
 import SatisfactionOfJudgment from '../pdf/SatisfactionOfJudgment.jsx';
+import RenewalLeaseRS from '../pdf/RenewalLeaseRS.jsx';
+import NoticeNonRenewalRS from '../pdf/NoticeNonRenewalRS.jsx';
+import DhcrRegistrationWorksheet from '../pdf/DhcrRegistrationWorksheet.jsx';
 import { joinAddress, fmtDate } from '../pdf/pdfTheme.js';
 
 // Reusable example/help snippets.
@@ -1052,6 +1055,134 @@ export const DOCUMENTS = {
       'Give the judgment debtor a copy for their records.',
     ],
     nextSteps: 'Notarize and file with the court clerk so the judgment is marked satisfied of record.',
+  },
+
+  renewal_lease_rs: {
+    title: 'Rent-Stabilized Renewal Lease Offer',
+    workflowType: 'landlord_rs',
+    statutes: ['Rent Stabilization Code § 2522.5', 'RGB Order (current)'],
+    Pdf: RenewalLeaseRS,
+    fields: [
+      { key: 'ownerName', label: 'Owner / agent name' },
+      { key: 'ownerAddress', label: 'Owner / agent address' },
+      { key: 'tenantNames', label: 'Tenant name(s)' },
+      { key: 'premisesAddress', label: 'Building address' },
+      { key: 'apartment', label: 'Apartment / unit', placeholder: 'e.g., 5C' },
+      { key: 'currentLegalRent', label: 'Current legal regulated rent (monthly $)', type: 'number', placeholder: '0' },
+      { key: 'currentLeaseExpiry', label: 'Date the current lease expires', type: 'date' },
+      { key: 'oneYearPct', label: '1-year RGB increase (%)', type: 'number',
+        example: 'Enter the current Rent Guidelines Board percentage for a 1-year renewal (e.g., 3).' },
+      { key: 'twoYearPct', label: '2-year RGB increase (%)', type: 'number',
+        example: 'Enter the current RGB percentage for a 2-year renewal (e.g., 2.75 + 3.2, per the order).' },
+      { key: 'guidelinesOrderRef', label: 'Applicable RGB order #', placeholder: 'e.g., Order #56' },
+      { key: 'offerDate', label: 'Date of this offer', type: 'date' },
+    ],
+    defaults: (p) => ({
+      ownerName: p.landlord_name || p.full_name || '', ownerAddress: fullAddress(p),
+      tenantNames: '', premisesAddress: fullAddress(p), apartment: p.unit_number || '',
+      currentLegalRent: '', currentLeaseExpiry: '', oneYearPct: '', twoYearPct: '',
+      guidelinesOrderRef: '', offerDate: '',
+    }),
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'Serve the offer on the official DHCR Renewal Lease Form (RTP-8), with the RA-LR1 rider attached.',
+      'Serve it 90–150 days before the current lease expires; keep proof of service.',
+      'The tenant has 60 days to choose a term and return a signed copy.',
+    ],
+    nextSteps: 'Send the RTP-8 with this worksheet’s figures; track the tenant’s 60-day response.',
+  },
+
+  notice_nonrenewal_rs: {
+    title: 'Notice of Non-Renewal (Rent-Stabilized)',
+    workflowType: 'landlord_rs',
+    statutes: ['Rent Stabilization Code § 2524.2', 'Rent Stabilization Code § 2524.4'],
+    Pdf: NoticeNonRenewalRS,
+    fields: [
+      { key: 'ownerName', label: 'Owner / agent name' },
+      { key: 'ownerAddress', label: 'Owner / agent address' },
+      { key: 'tenantNames', label: 'Tenant name(s)' },
+      { key: 'premisesAddress', label: 'Building address' },
+      { key: 'apartment', label: 'Apartment / unit', placeholder: 'e.g., 5C' },
+      { key: 'leaseExpiry', label: 'Date the current lease expires', type: 'date' },
+      { key: 'ground', label: 'Ground for non-renewal', type: 'select',
+        options: [
+          { value: 'owner_use', label: 'Owner / family personal use' },
+          { value: 'demolition', label: 'Demolition (needs DHCR approval)' },
+          { value: 'other', label: 'Other ground (explain)' },
+        ] },
+      { key: 'groundDetail', label: 'Explain the ground', type: 'textarea',
+        example: 'Examples: "Owner’s daughter will occupy the unit as her primary residence." · "Building will be demolished under approved plans."' },
+      { key: 'noticeDate', label: 'Date you will serve this notice', type: 'date' },
+    ],
+    defaults: (p) => ({
+      ownerName: p.landlord_name || p.full_name || '', ownerAddress: fullAddress(p),
+      tenantNames: '', premisesAddress: fullAddress(p), apartment: p.unit_number || '',
+      leaseExpiry: '', ground: 'owner_use', groundDetail: '', noticeDate: '',
+    }),
+    derive: (v) => v,
+    dateInfo: (v) => {
+      if (!v.leaseExpiry) return null;
+      const windowOpen = addDays(v.leaseExpiry, -150);
+      const windowClose = addDays(v.leaseExpiry, -90);
+      const items = [
+        { tone: 'must', text: `Serve this notice between ${fmtDate(windowOpen)} and ${fmtDate(windowClose)} — the 90-to-150-day window before the lease expires (${fmtDate(v.leaseExpiry)}).` },
+        { tone: 'cannot', text: 'Served too early or too late, the notice is generally invalid and you must start over with the next renewal cycle.' },
+      ];
+      if (v.noticeDate) {
+        const inWindow = v.noticeDate >= windowOpen && v.noticeDate <= windowClose;
+        items.push(inWindow
+          ? { tone: 'info', text: `Your chosen date (${fmtDate(v.noticeDate)}) is within the valid window. ✅` }
+          : { tone: 'warn', text: `Your chosen date (${fmtDate(v.noticeDate)}) is OUTSIDE the 90–150 day window. Pick a date in the range above.` });
+      }
+      return { items };
+    },
+    serviceInstructions: [
+      'Serve within the 90–150 day window before the lease expires; keep proof of service.',
+      'Non-renewal is only allowed on specific Rent Stabilization Code grounds; some (e.g., demolition) need DHCR approval first.',
+      'If the tenant does not vacate, this notice is the predicate for a holdover proceeding.',
+    ],
+    nextSteps: 'Serve in the valid window; if the tenant stays, prepare a Holdover Petition citing this notice.',
+  },
+
+  dhcr_registration: {
+    title: 'DHCR Annual Registration Worksheet',
+    workflowType: 'landlord_rs',
+    statutes: ['Rent Stabilization Code § 2528'],
+    Pdf: DhcrRegistrationWorksheet,
+    fields: [
+      { key: 'ownerName', label: 'Owner name' },
+      { key: 'ownerAddress', label: 'Owner mailing address' },
+      { key: 'buildingAddress', label: 'Building address' },
+      { key: 'numUnits', label: 'Number of units in the building', type: 'number', placeholder: '0' },
+      { key: 'registrationYear', label: 'Registration year', placeholder: 'e.g., 2026' },
+      { key: 'apartment', label: 'Apartment / unit', placeholder: 'e.g., 5C' },
+      { key: 'tenantName', label: 'Tenant of record' },
+      { key: 'status', label: 'Regulatory status', type: 'select',
+        options: [
+          { value: 'rent_stabilized', label: 'Rent Stabilized' },
+          { value: 'rent_controlled', label: 'Rent Controlled' },
+          { value: 'exempt', label: 'Exempt / Other' },
+        ] },
+      { key: 'legalRegRent', label: 'Legal regulated rent (monthly $)', type: 'number', placeholder: '0' },
+      { key: 'actualRent', label: 'Actual rent charged (monthly $)', type: 'number', placeholder: '0' },
+      { key: 'prefRent', label: 'Preferential rent (if any) ($)', type: 'number', placeholder: 'Leave blank if none' },
+      { key: 'leaseStart', label: 'Lease start date', type: 'date' },
+      { key: 'leaseEnd', label: 'Lease end date', type: 'date' },
+      { key: 'worksheetDate', label: 'Date prepared', type: 'date' },
+    ],
+    defaults: (p) => ({
+      ownerName: p.landlord_name || p.full_name || '', ownerAddress: fullAddress(p),
+      buildingAddress: fullAddress(p), numUnits: '', registrationYear: '',
+      apartment: p.unit_number || '', tenantName: '', status: 'rent_stabilized',
+      legalRegRent: '', actualRent: '', prefRent: '', leaseStart: '', leaseEnd: '', worksheetDate: '',
+    }),
+    derive: (v) => v, dateInfo: () => null,
+    serviceInstructions: [
+      'This worksheet is a preparation aid — it is not the official DHCR filing.',
+      'File the official RR-1 and RR-2A through DHCR’s online Annual Registration (ARRO) system.',
+      'Serve the tenant copy of the apartment registration (RR-2A) as DHCR requires.',
+    ],
+    nextSteps: 'Use these figures to file the official annual registration on DHCR’s portal and serve the tenant copy.',
   },
 };
 

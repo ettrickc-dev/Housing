@@ -285,10 +285,12 @@ const READY_DOCS = [
   'HP repairs case & illegal-lockout (restoration) petitions',
   'Motion for default judgment & stipulation of settlement',
   'Post-judgment: marshal/sheriff requisition & satisfaction of judgment',
+  'Rent-stabilized renewal, non-renewal (Golub) & DHCR registration',
 ];
 const SOON_DOCS = [
-  'DHCR filings (registration, lease renewal)',
-  'Rent-stabilized lease renewal & non-renewal notices',
+  'Rent overcharge complaint (DHCR)',
+  'Succession / lease-renewal disputes',
+  'More forms added regularly — tell us what you need next',
 ];
 
 const TRUST = [

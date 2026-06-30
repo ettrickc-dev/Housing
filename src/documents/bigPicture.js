@@ -176,6 +176,36 @@ export const BIG_PICTURE = {
     steps: ['Both sides agree on terms', 'Put the terms in this stipulation', 'Both parties sign it', 'The judge so-orders it on your court date'],
     current: 1,
   },
+  renewal_lease_rs: {
+    flow: 'Renewing a rent-stabilized lease (landlord)',
+    why:
+      'For a rent-stabilized apartment, the owner must offer the tenant a renewal lease in the ' +
+      'window before the current lease ends, at the rent increase set by the Rent Guidelines ' +
+      'Board. Right now you are preparing the renewal offer with the 1- and 2-year figures; the ' +
+      'tenant then picks a term and signs.',
+    steps: ['Look up the current RGB increase %', 'Prepare the renewal offer (RTP-8) with both terms', 'Serve it 90–150 days before the lease ends', 'Tenant chooses a term and returns it within 60 days'],
+    current: 1,
+  },
+  notice_nonrenewal_rs: {
+    flow: 'Declining to renew a rent-stabilized lease (landlord)',
+    why:
+      'You normally must renew a rent-stabilized lease — you can only decline on specific legal ' +
+      'grounds (like owner’s own use), and the notice must be served in a strict 90-to-150-day ' +
+      'window before the lease ends. Right now you are preparing that non-renewal notice; if the ' +
+      'tenant stays, it becomes the basis for a holdover case.',
+    steps: ['Confirm you have a valid legal ground', 'Serve this non-renewal notice in the 90–150 day window', 'Tenant’s lease expires', 'If they stay, file a Holdover Petition citing this notice'],
+    current: 1,
+  },
+  dhcr_registration: {
+    flow: 'Filing your annual DHCR registration (landlord)',
+    why:
+      'Owners of rent-stabilized units must register every apartment with DHCR each year and ' +
+      'give the tenant a copy. The official filing happens on DHCR’s own forms through their ' +
+      'online system — right now you are using this worksheet to gather and double-check your ' +
+      'figures before you file.',
+    steps: ['Gather each unit’s rent and lease data (this worksheet)', 'Log in to DHCR’s online registration (ARRO)', 'File the official RR-1 + RR-2A', 'Serve the tenant copy of the registration'],
+    current: 0,
+  },
   marshal_requisition: {
     flow: 'Carrying out the eviction after you win (landlord)',
     why:
@@ -317,6 +347,22 @@ export const WHAT_YOU_NEED = {
     'Your index / L&T number and the court',
     'What you both agreed: a payment amount + date, or a move-out date',
     'Any other terms (repairs, waived fees, withdrawn claims)',
+  ],
+  renewal_lease_rs: [
+    'The tenant name(s), apartment, and building address',
+    'The current legal regulated rent and lease expiration date',
+    'The current Rent Guidelines Board 1- and 2-year increase percentages',
+    'The applicable RGB order number',
+  ],
+  notice_nonrenewal_rs: [
+    'The tenant name(s), apartment, and building address',
+    'The current lease expiration date',
+    'Your legal ground for non-renewal (and the details)',
+  ],
+  dhcr_registration: [
+    'Owner and building info (address, number of units)',
+    'The registration year',
+    'For each unit: tenant, status, legal + actual rent, lease dates',
   ],
   marshal_requisition: [
     'Your index / L&T number and the court',
