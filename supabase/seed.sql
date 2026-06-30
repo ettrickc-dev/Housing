@@ -32,6 +32,29 @@ insert into public.statutes (citation, name, category, description, last_verifie
   ('ERAP successor programs', 'Emergency Rental Assistance (successor programs)', 'Assistance', 'Pending-application stay implications.', null, true, 'VERIFY current program status.')
 on conflict (citation) do nothing;
 
+-- Additional citations referenced by the expanded document library (so each
+-- appears in the Admin Law Review dashboard for verification). Strings match the
+-- `statutes` arrays in src/documents/registry.jsx exactly.
+insert into public.statutes (citation, name, category, description, last_verified_date, flagged_for_review, notes) values
+  ('CPLR § 4102', 'Demand for trial by jury', 'CPLR', 'Demand and waiver of jury trial.', null, true, 'VERIFY jury demand timing and any lease waiver effect.'),
+  ('CPLR § 5015', 'Relief from judgment / vacate default', 'CPLR', 'Grounds to vacate a default judgment (excusable default + meritorious defense).', null, true, 'VERIFY.'),
+  ('CPLR § 5020', 'Satisfaction of judgment', 'CPLR', 'Execution and form of a satisfaction piece.', null, true, 'VERIFY acknowledgment requirements.'),
+  ('CPLR § 5021', 'Entry of satisfaction by the clerk', 'CPLR', 'Clerk marks the judgment satisfied of record.', null, true, 'VERIFY filing procedure.'),
+  ('RPAPL § 732', 'Nonpayment procedure / time to answer', 'RPAPL', 'Special rules for nonpayment proceedings, including default.', null, true, 'VERIFY time-to-answer and default mechanics.'),
+  ('RPAPL § 747', 'Judgment in summary proceeding', 'RPAPL', 'Final judgment of possession and money judgment.', null, true, 'VERIFY.'),
+  ('RPAPL § 768', 'Unlawful eviction', 'RPAPL', 'Prohibition on self-help / unlawful eviction.', null, true, 'VERIFY scope and penalties.'),
+  ('RPAPL § 853', 'Action for forcible/unlawful eviction (treble damages)', 'RPAPL', 'Damages for unlawful eviction; basis for restoration.', null, true, 'VERIFY treble-damages availability.'),
+  ('NYC Admin Code § 26-521', 'Unlawful eviction (NYC)', 'NYC', 'NYC unlawful eviction protections (30-day occupancy).', null, true, 'VERIFY current NYC provisions.'),
+  ('NYC Housing Maintenance Code', 'NYC Housing Maintenance Code', 'NYC', 'HP action basis; repair obligations and violations.', null, true, 'VERIFY relevant HMC sections.'),
+  ('Multiple Dwelling Law', 'Multiple Dwelling Law', 'NYC/State', 'Habitability and maintenance standards for multiple dwellings.', null, true, 'VERIFY applicable sections.'),
+  ('Servicemembers Civil Relief Act', 'Servicemembers Civil Relief Act', 'Federal', 'Military-status protections; default-judgment affidavit requirement.', null, true, 'VERIFY current SCRA affidavit requirements.'),
+  ('Rent Stabilization Code § 2522.5', 'RSC — renewal lease offers', 'Rent Regulation', 'Renewal lease form, terms, and timing (RTP-8).', null, true, 'VERIFY renewal window and RA-LR1 rider.'),
+  ('Rent Stabilization Code § 2524.2', 'RSC — notice of non-renewal', 'Rent Regulation', 'Notice requirements to refuse renewal (Golub window).', null, true, 'VERIFY 90–150 day window.'),
+  ('Rent Stabilization Code § 2524.4', 'RSC — grounds for refusal to renew', 'Rent Regulation', 'Owner-use, demolition, and other permitted grounds.', null, true, 'VERIFY grounds and DHCR approval where required.'),
+  ('Rent Stabilization Code § 2528', 'RSC — annual registration', 'Rent Regulation', 'Owner annual rent registration with DHCR (RR-1/RR-2A).', null, true, 'VERIFY current registration procedure (ARRO).'),
+  ('RGB Order (current)', 'Rent Guidelines Board order (current)', 'Rent Regulation', 'Annual RGB renewal increase percentages — change yearly.', null, true, 'VERIFY current RGB order each year before offering renewals.')
+on conflict (citation) do nothing;
+
 -- Which statutes the first MVP documents cite (drives in-app banners).
 insert into public.document_statutes (doc_type, citation) values
   ('rent_demand_14day', 'RPAPL § 711'),

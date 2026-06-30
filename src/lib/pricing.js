@@ -20,6 +20,22 @@ export const DOC_PRICES_CENTS = {
   answer_nonpayment: 2500,
   answer_holdover: 2500,
   osc_vacate_default: 2500,
+  osc_stay_warrant: 2500,
+  jury_demand: 2500,
+  fee_waiver: 2500,
+  // Tenant — affirmative cases (more work, still fair)
+  hp_action_repairs: 5500,
+  illegal_lockout: 5500,
+  // Landlord — in-case motions & settlement
+  motion_default_judgment: 4900,
+  stipulation_settlement: 3900,
+  // Landlord — post-judgment
+  marshal_requisition: 2900,
+  satisfaction_judgment: 2900,
+  // Landlord — rent-stabilized / DHCR
+  renewal_lease_rs: 3900,
+  notice_nonrenewal_rs: 3900,
+  dhcr_registration: 3900,
 };
 
 export const DEFAULT_PRICE_CENTS = 3900;
